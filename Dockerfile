@@ -4,6 +4,7 @@ FROM node:alpine as base
 WORKDIR /aels
 COPY . /aels
 RUN npm i
+RUN npx prisma generate
 
 FROM base as dev
 ENTRYPOINT ["npm", "run", "dev"]

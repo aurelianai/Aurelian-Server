@@ -5,11 +5,9 @@ services:
       args:
         env: "dev"
     environment:
-      POSTGRES_URL: "db"
-      POSTGRES_USER: "postgres"
-      POSTGRES_PASSWORD: "postgres"
-      POSTGRES_DB: "postgres"
-    ports: 
+      DATABASE_URL: "postgresql://postgres:postgres@db/postgres?schema=public"
+      JWT_SECRET: "superdupersecretkey-couldneverbeguessedbyanyone"
+    ports:
       - "5173:5173"
     volumes:
       - ./:/aels
