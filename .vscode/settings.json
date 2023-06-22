@@ -1,4 +1,5 @@
 {
+	"editor.tabSize": 3,
 	"prettier.documentSelectors": [
 		"**/*.svelte"
 	],
