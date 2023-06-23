@@ -1,6 +1,9 @@
-// Start up code to migrate database. Not the cleanest, but should get the job done.
+// Start up code to migrate database. Not the cleanest, but should get the job done. Only used in production since it messes with vite dev server
 import { execSync } from 'child_process'
-execSync(`npx prisma migrate deploy --schema /aels/prisma/schema.prisma`, { stdio: "inherit" })
+if (process.env.NODE_ENV === "prod") {
+   execSync(`npx prisma migrate deploy --schema /aels/prisma/schema.prisma`, { stdio: "inherit" })
+}
+
 
 
 // Auth Middleware
@@ -17,10 +20,8 @@ export const handle = (async ({ event, resolve }) => {
    } else {
       event.locals.auth_store.clear()
    }
-
    const response = await resolve(event)
 
    response.headers.append('Set-Cookie', event.locals.auth_store.export_to_cookie())
-
    return response
 }) satisfies Handle
