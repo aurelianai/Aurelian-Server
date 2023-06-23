@@ -34,7 +34,7 @@
 				use:enhance
 				use:focusTrap={true}
 			>
-				<div class="flex flex-col items-center w-full space-y-2">
+				<div class="flex flex-col w-full space-y-2 justify-left">
 					<div
 						class="input-group input-group-divider grid-cols-[auto_1fr_auto] rounded-md border-none hover:shadow-md"
 					>
