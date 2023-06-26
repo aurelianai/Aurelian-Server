@@ -57,9 +57,6 @@
 	{/if}
 	{#if confirm_delete && hover}
 		<div class="flex flex-row">
-			<button class="w-6 h-6 bg-transparent btn" on:click={() => (confirm_delete = false)}>
-				❌
-			</button>
 			<button
 				class="w-6 h-6 bg-transparent btn"
 				on:click={() => {
@@ -69,13 +66,13 @@
 			>
 				✅
 			</button>
+			<button class="w-6 h-6 bg-transparent btn" on:click={() => (confirm_delete = false)}>
+				❌
+			</button>
 		</div>
 	{/if}
 	{#if confirm_edit}
 		<div class="flex flex-row">
-			<button class="w-6 h-6 bg-transparent btn" on:click={() => (confirm_edit = false)}>
-				❌
-			</button>
 			<button
 				class="w-6 h-6 bg-transparent btn"
 				on:click={async () => {
@@ -89,6 +86,9 @@
 				}}
 			>
 				✅
+			</button>
+			<button class="w-6 h-6 bg-transparent btn" on:click={() => (confirm_edit = false)}>
+				❌
 			</button>
 		</div>
 	{/if}

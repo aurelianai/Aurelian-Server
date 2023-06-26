@@ -7,13 +7,11 @@
 </svelte:head>
 
 <div class="flex h-full">
-	<div
-		class="fixed w-64 h-full overflow-y-auto border-r bg-secondary-500/5 border-surface-900-50-token"
-	>
+	<div class="fixed w-64 h-full overflow-y-hidden shadow-md hover:overflow-y-auto">
 		<ChatSidebar />
 	</div>
 
-	<div class="fixed bottom-0 right-0 overflow-y-auto top-20 left-64">
+	<div class="fixed top-0 bottom-0 right-0 overflow-y-auto left-64">
 		<slot />
 	</div>
 </div>

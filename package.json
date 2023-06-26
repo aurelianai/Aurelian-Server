@@ -39,6 +39,8 @@
 	"dependencies": {
 		"@prisma/client": "^4.16.0",
 		"jsonwebtoken": "^9.0.0",
+		"svelte-loading-spinners": "^0.3.4",
+		"svelte-typewriter": "^3.1.6",
 		"zod": "^3.21.4"
 	}
 }
