@@ -5,7 +5,7 @@
 
 	import { onMount } from 'svelte';
 	import { selected_session_id } from '$lib/stores';
-	import { list_chats, new_chat, delete_chat } from '$lib/chat/crud';
+	import { list_chats, new_chat, delete_chat } from './crud';
 
 	let chats: Chat[] = [];
 	onMount(async () => {

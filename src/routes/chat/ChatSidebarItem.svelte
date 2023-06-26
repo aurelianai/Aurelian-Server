@@ -4,7 +4,7 @@
 	import { createEventDispatcher } from 'svelte';
 	import { focusTrap } from '@skeletonlabs/skeleton';
 	import { selected_session_id } from '$lib/stores';
-	import { update_chat } from '$lib/chat/crud';
+	import { update_chat } from './crud';
 
 	export let chat: Chat;
 	let isActive: boolean = $selected_session_id === chat.id;
@@ -51,19 +51,13 @@
 		>
 			✏️
 		</button>
-		<button
-			class="w-6 h-6 bg-transparent btn"
-			on:click={() => (confirm_delete = true)}
-		>
+		<button class="w-6 h-6 bg-transparent btn" on:click={() => (confirm_delete = true)}>
 			🗑️
 		</button>
 	{/if}
 	{#if confirm_delete && hover}
 		<div class="flex flex-row">
-			<button
-				class="w-6 h-6 bg-transparent btn"
-				on:click={() => (confirm_delete = false)}
-			>
+			<button class="w-6 h-6 bg-transparent btn" on:click={() => (confirm_delete = false)}>
 				❌
 			</button>
 			<button
@@ -79,10 +73,7 @@
 	{/if}
 	{#if confirm_edit}
 		<div class="flex flex-row">
-			<button
-				class="w-6 h-6 bg-transparent btn"
-				on:click={() => (confirm_edit = false)}
-			>
+			<button class="w-6 h-6 bg-transparent btn" on:click={() => (confirm_edit = false)}>
 				❌
 			</button>
 			<button

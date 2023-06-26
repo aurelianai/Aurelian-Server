@@ -12,16 +12,12 @@ export class AuthStore {
    async load_from_cookie(event: RequestEvent): Promise<void> {
       const cookie = event.cookies.get("Authorization")
       if (cookie) {
-         console.log(`Got Cookie ${cookie}`)
-         this.token = cookie // Dump Bearer prefix
-         console.log(`Got Token: '${this.token}`)
+         this.token = cookie
          try {
             const jwt_json = jwt.verify(this.token, this.JWT_SECRET) as JWT_BODY
             this.user_id = jwt_json.user_id
             this.isValid = true
-         } catch (_) {
-            console.log(`Token Verification Failed`)
-         }
+         } catch (_) { /* empty */ }
       }
    }
 
@@ -49,7 +45,6 @@ export class AuthStore {
       }
 
       if (password !== user.password) {
-         console.log(`password didn't match ${user.password}`)
          return false
       }
 

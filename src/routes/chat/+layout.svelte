@@ -2,6 +2,10 @@
 	import ChatSidebar from './ChatSidebar.svelte';
 </script>
 
+<svelte:head>
+	<title>Aurelian</title>
+</svelte:head>
+
 <div class="flex h-full">
 	<div
 		class="fixed w-64 h-full overflow-y-auto border-r bg-secondary-500/5 border-surface-900-50-token"

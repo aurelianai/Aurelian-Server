@@ -1,7 +1,11 @@
 export type Chat = {
-    id: number;
-    name: string;
+	id: number;
+	name: string;
 };
+
+export type Delete = {
+	id: number
+}
 
 export type Message = {
 	role: 'USER' | 'MODEL';
