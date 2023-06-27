@@ -30,7 +30,7 @@ export class AuthStore {
    }
 
    export_to_cookie(): string {
-      return `Authorization=${this.token}`
+      return `Authorization=${this.token}; Path=/`
    }
 
    async hydrate_with_email_password(email: string, password: string): Promise<boolean> {

@@ -20,9 +20,9 @@
 <!-- svelte-ignore a11y-mouse-events-have-key-events -->
 <div
 	class:variant-ringed-primary={isActive}
-	class:bg-primary-200={isActive}
-	class:bg-secondary-100={hover}
-	class="flex items-center w-full p-2 font-bold rounded-md text-md"
+	class:variant-ghost-primary={isActive}
+	class:variant-soft-surface={!isActive}
+	class="flex items-center w-full p-2 space-x-2 font-bold rounded-md text-md"
 	on:mouseenter={() => (hover = true)}
 	on:mouseleave={() => (hover = false)}
 >
@@ -43,7 +43,7 @@
 
 	{#if hover && !confirm_delete && !confirm_edit}
 		<button
-			class="w-6 h-6 bg-transparent btn"
+			class="w-6 h-6 space-x-1 bg-transparent btn"
 			on:click={() => {
 				confirm_edit = true;
 				new_name = chat.name;
