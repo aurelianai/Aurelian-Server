@@ -20,9 +20,8 @@
 <!-- svelte-ignore a11y-mouse-events-have-key-events -->
 <div
 	class:variant-ringed-primary={isActive}
-	class:variant-ghost-primary={isActive}
-	class:variant-soft-surface={!isActive}
-	class="flex items-center w-full p-2 space-x-2 font-bold rounded-md text-md"
+	class:variant-soft-surface={hover && !isActive}
+	class="flex items-center w-full p-2 font-medium rounded-md text-md"
 	on:mouseenter={() => (hover = true)}
 	on:mouseleave={() => (hover = false)}
 >
@@ -41,7 +40,7 @@
 		</div>
 	{/if}
 
-	{#if hover && !confirm_delete && !confirm_edit}
+	{#if isActive && !confirm_delete && !confirm_edit}
 		<button
 			class="w-6 h-6 space-x-1 bg-transparent btn"
 			on:click={() => {
@@ -55,7 +54,7 @@
 			🗑️
 		</button>
 	{/if}
-	{#if confirm_delete && hover}
+	{#if confirm_delete && isActive}
 		<div class="flex flex-row">
 			<button
 				class="w-6 h-6 bg-transparent btn"

@@ -1,4 +1,6 @@
 import type { Chat, Delete, Message, TextGenModel } from '$lib/types'
+import { get } from 'svelte/store'
+import { selected_session_id } from '$lib/stores'
 
 // Chat
 export const list_chats = async (): Promise<Chat[]> => {
@@ -31,15 +33,18 @@ export const delete_chat = async (id: number) => {
 
 // Messages
 export const list_messages = async (): Promise<Message[]> => {
-   return []
+   await ssid()
+   const res = await fetch(`/api/chat/${get(selected_session_id)}`)
+   return res.json()
 }
 
 export const new_message = async (role: "USER" | "MODEL", content: string): Promise<Message> => {
+   await ssid()
    return { role, content }
 }
 
-export const complete = async (id: number): Promise<Message> => {
-   console.log(id)
+export const complete = async (): Promise<Message> => {
+   await ssid()
    return {
       role: "MODEL",
       content: "Hey, how's it going?"
@@ -49,5 +54,14 @@ export const complete = async (id: number): Promise<Message> => {
 
 // Models
 export const list_models = async (): Promise<TextGenModel[]> => {
-   return []
+   const res = await fetch('/api/models')
+   return res.json()
+}
+
+
+// Light Utilities to Wait for State to be Defined, should almost never hit
+export const ssid = async () => {
+   while (get(selected_session_id) === undefined) {
+      await new Promise(r => setTimeout(r, 100))
+   }
 }

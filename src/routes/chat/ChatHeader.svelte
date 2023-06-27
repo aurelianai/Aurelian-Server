@@ -1,4 +1,7 @@
 <script lang="ts">
+	import { Icon, ChevronDown } from 'svelte-hero-icons';
+	import ModelLogo from './ModelLogo.svelte';
+
 	import type { PopupSettings } from '@skeletonlabs/skeleton';
 	import type { TextGenModel } from '$lib/types';
 
@@ -26,34 +29,40 @@
 </script>
 
 <div
-	class="flex w-64 p-4 mx-auto rounded-lg shadow-xl bg-surface-100-800-token"
+	class="flex w-40 p-2 mx-auto rounded-lg shadow-xl bg-surface-100-800-token"
 	use:popup={modelListPopup}
 >
-	<button class="justify-between w-56 py-2 rounded-lg btn variant-filled-tertiary" {disabled}>
-		<span>{selected_model?.name}</span>
-		<span>↓</span>
+	<button class="w-full p-2 rounded-lg btn" {disabled}>
+		<span><ModelLogo /></span>
+		<span class="font-medium">{selected_model?.name || 'Select a Model'}</span>
+		{#if models?.length > 1}
+			<span><Icon src={ChevronDown} size="15" /></span>
+		{/if}
 	</button>
 </div>
-
-<!--Model List Popup-->
-<div class="w-64 p-4 space-y-2 rounded-lg shadow-xl card" data-popup="modelListPopup">
-	{#if models !== undefined}
-		{#each models as model}
-			<button
-				class="w-56 py-2 rounded-lg btn variant-filled-tertiary close-class"
-				{disabled}
-				on:click={() => {
-					selected_model = model;
-					$selected_model_id = selected_model.id;
-				}}
-			>
-				<span>{model.name}</span>
-			</button>
-		{/each}
-	{/if}
-</div>
+{#if models?.length > 1}
+	<!--Model List Popup-->
+	<div class="flex flex-col w-40 p-2 rounded-md shadow-xl card" data-popup="modelListPopup">
+		{#if models !== undefined}
+			{#each models as model}
+				<button
+					class="justify-start w-full p-2 rounded-md btn close-class hover:variant-soft-surface"
+					{disabled}
+					on:click={() => {
+						selected_model = model;
+						$selected_model_id = selected_model.id;
+					}}
+				>
+					<span><ModelLogo /></span>
+					<span>{model.name}</span>
+				</button>
+			{/each}
+		{/if}
+	</div>
+{/if}
 
 <style>
 	.close-class {
+		text-align: left;
 	}
 </style>

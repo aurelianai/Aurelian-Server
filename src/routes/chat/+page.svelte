@@ -16,12 +16,11 @@
 	let generating: boolean = false;
 	let bottom: HTMLDivElement;
 
-	onMount(async () => {
-		messages = await list_messages();
-	});
-
-	selected_session_id.subscribe(async () => {
-		messages = await list_messages();
+	selected_session_id.subscribe(async (id: number) => {
+		if (id !== undefined) {
+			messages = await list_messages();
+			console.log(messages);
+		}
 	});
 
 	const handle_message_send = async (event: any) => {
@@ -37,7 +36,7 @@
 
 		let model_response: Message;
 		try {
-			model_response = await complete($selected_session_id);
+			model_response = await complete();
 		} catch (err) {
 			generating = false;
 			return;

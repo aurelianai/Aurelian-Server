@@ -3,7 +3,7 @@
 
 	let sample_messages = [
 		{ message: 'Who was Aurelian and why was he important?', copied: false },
-		{ message: 'How should I learn to solve a rubix cube?', copied: false },
+		{ message: 'Explain the Special Theory of Relativity', copied: false },
 		{
 			message: 'Write an email to Sarah accepting an invitation to her party',
 			copied: false
