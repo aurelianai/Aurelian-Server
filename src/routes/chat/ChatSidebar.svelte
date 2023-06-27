@@ -2,11 +2,13 @@
 	import { Avatar, LightSwitch } from '@skeletonlabs/skeleton';
 	import ChatSidebarItem from './ChatSidebarItem.svelte';
 
-	import type { Chat } from '$lib/types';
+	import type { Chat, User } from '$lib/types';
 
 	import { onMount } from 'svelte';
 	import { selected_session_id } from '$lib/stores';
 	import { list_chats, new_chat, delete_chat } from './crud';
+
+	export let user: User;
 
 	let chats: Chat[] = [];
 	onMount(async () => {
@@ -42,8 +44,6 @@
 	</button>
 </div>
 
-<hr class="opacity-100" />
-
 <div class="px-3 pt-2 space-y-5">
 	<nav class="space-y-4 list-nav">
 		<ul>
@@ -61,14 +61,21 @@
 
 <div class="fixed bottom-0 left-0 w-64 px-3 pb-2 space-y-3 menu-button-bg">
 	<hr class="opacity-100" />
-	<div class="flex items-center w-full space-x-5">
-		<Avatar
-			initials="ES"
-			background="variant-filled-primary"
-			width="w-10"
-			rounded="rounded-md"
-			fill="fill-white"
-		/>
+	<div class="flex items-center w-full space-x-3">
+		<!-- TODO Popup Here-->
+		<div class="flex items-center w-40 p-2 space-x-2 rounded-md hover:variant-soft-surface">
+			<Avatar
+				initials={user.email[0]}
+				background="variant-filled-primary"
+				width="w-10"
+				rounded="rounded-md"
+				fill="fill-white"
+			/>
+			<p class="font-bold">
+				{user.email.split('@')[0].slice(0, 12)}
+			</p>
+		</div>
+
 		<LightSwitch />
 	</div>
 </div>
