@@ -5,6 +5,10 @@
 	import '@skeletonlabs/skeleton/styles/skeleton.css';
 	// Most of your app wide CSS should be put in this file
 	import '../app.postcss';
+	import hljs from 'highlight.js';
+	import 'highlight.js/styles/github-dark.css';
+	import { storeHighlightJs } from '@skeletonlabs/skeleton';
+	storeHighlightJs.set(hljs);
 	// For Popups
 	import { computePosition, autoUpdate, offset, shift, flip, arrow } from '@floating-ui/dom';
 	import { storePopup } from '@skeletonlabs/skeleton';

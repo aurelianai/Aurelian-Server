@@ -22,9 +22,9 @@
 		"@typescript-eslint/eslint-plugin": "^5.45.0",
 		"@typescript-eslint/parser": "^5.45.0",
 		"autoprefixer": "^10.4.14",
-		"eslint": "^8.28.0",
-		"eslint-config-prettier": "^8.5.0",
-		"eslint-plugin-svelte": "^2.26.0",
+		"eslint": "^8.43.0",
+		"eslint-config-prettier": "^6.15.0",
+		"eslint-plugin-svelte": "^1.1.2",
 		"postcss": "^8.4.24",
 		"prettier": "^2.8.0",
 		"prettier-plugin-svelte": "^2.8.1",
@@ -39,8 +39,11 @@
 	},
 	"dependencies": {
 		"@prisma/client": "^4.16.0",
+		"highlight.js": "^11.8.0",
 		"jsonwebtoken": "^9.0.0",
+		"openai": "^3.3.0",
 		"svelte-loading-spinners": "^0.3.4",
+		"svelte-markdown": "^0.2.3",
 		"svelte-typewriter": "^3.1.6",
 		"zod": "^3.21.4"
 	}

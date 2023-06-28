@@ -1,7 +1,6 @@
 <script lang="ts">
-	import type { ToastSettings } from '@skeletonlabs/skeleton';
-	import { toastStore } from '@skeletonlabs/skeleton';
 	import { createEventDispatcher } from 'svelte';
+	import { Icon, PaperAirplane } from 'svelte-hero-icons';
 
 	export let disabled: boolean;
 
@@ -24,30 +23,25 @@
 
 	let shift_pressed = false;
 	let enter_pressed = false;
-	let user_send_chat = shift_pressed && enter_pressed;
+	let user_send_chat = enter_pressed && !shift_pressed;
+	let new_line = shift_pressed && enter_pressed;
 	$: {
-		user_send_chat = shift_pressed && enter_pressed;
+		user_send_chat = enter_pressed && !shift_pressed;
+		new_line = shift_pressed && enter_pressed;
 		if (user_send_chat) {
-			shift_pressed = false;
-			enter_pressed = false;
-			if (!lint_input()) {
-				let t: ToastSettings = {
-					message: 'Please write something before sending chat!',
-					background: 'variant-filled-error',
-					timeout: 750
-				};
-				toastStore.trigger(t);
-			} else {
-				dispatch('send_message', {
-					message_content: chat_content
-				});
-				chat_content = '';
-			}
+			send_message();
+		} else if (new_line) {
+			chat_content += '\n';
 		}
 	}
 
-	const lint_input = (): boolean => {
-		return !(chat_content.length === 0);
+	const send_message = () => {
+		shift_pressed = false;
+		enter_pressed = false;
+		dispatch('send_message', {
+			message_content: chat_content
+		});
+		chat_content = '';
 	};
 
 	const key_down = (event: KeyboardEvent) => {
@@ -57,9 +51,11 @@
 				break;
 			case 'Enter':
 				enter_pressed = true;
-				if (shift_pressed) {
-					event.preventDefault();
-				}
+				event.preventDefault();
+				break;
+			case 'Tab':
+				event.preventDefault();
+				chat_content += '\t';
 				break;
 		}
 	};
@@ -75,17 +71,21 @@
 	};
 </script>
 
-<div class="max-w-2xl px-5 py-2 mx-auto rounded-lg shadow-2xl bg-surface-100-800-token">
+<div class="relative flex flex-grow max-w-2xl">
 	<textarea
 		bind:value={chat_content}
 		on:keyup={key_up}
 		on:keydown={key_down}
-		class="p-2 rounded-md textarea"
+		class="p-4 border-none rounded-md shadow-2xl resize-none textarea bg-surface-100-800-token"
 		{rows}
-		placeholder="Type your question here ..."
+		placeholder="Prompt"
 		{disabled}
 	/>
-	<p class="my-1 text-xs font-bold text-center">
-		<kbd>SHIFT</kbd> + <kbd>ENTER</kbd> to Send Chat
-	</p>
+	<button
+		class="absolute p-2 rounded-md w-9 h-9 btn btn-icon variant-filled-primary bottom-[10px] right-2"
+		disabled={chat_content === ''}
+		on:click={send_message}
+	>
+		<Icon src={PaperAirplane} />
+	</button>
 </div>

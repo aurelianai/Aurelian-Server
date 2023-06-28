@@ -40,15 +40,15 @@ export const list_messages = async (): Promise<Message[]> => {
 
 export const new_message = async (role: "USER" | "MODEL", content: string): Promise<Message> => {
    await ssid()
-   return { role, content }
+   const body: Message = { role, content }
+   const res = await fetch(`/api/chat/${get(selected_session_id)}`, { method: "POST", body: JSON.stringify(body) })
+   return res.json()
 }
 
 export const complete = async (): Promise<Message> => {
    await ssid()
-   return {
-      role: "MODEL",
-      content: "Hey, how's it going?"
-   }
+   const res = await fetch(`/api/chat/${get(selected_session_id)}/complete`, { method: "POST" })
+   return res.json()
 }
 
 

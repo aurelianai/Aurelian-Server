@@ -27,6 +27,7 @@
 								use:clipboard={{ element: 'example' + i.toString() }}
 								on:click={async () => {
 									sample_messages[i].copied = true;
+									sample_messages.forEach((msg, index) => (msg.copied = i === index));
 								}}
 								class="p-1 btn"
 							>

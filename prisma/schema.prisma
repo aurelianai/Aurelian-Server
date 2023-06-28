@@ -22,13 +22,14 @@ model Chat {
   name       String
   messages   Message[]
   created_at DateTime  @default(now())
-  User       User?     @relation(fields: [userId], references: [id])
+  User       User?     @relation(fields: [userId], references: [id], onDelete: Cascade)
   userId     Int?
 }
 
 model Message {
   id      Int    @id @default(autoincrement())
+  role    String
   content String
-  Chat    Chat?  @relation(fields: [chatId], references: [id])
+  Chat    Chat?  @relation(fields: [chatId], references: [id], onDelete: Cascade)
   chatId  Int?
 }

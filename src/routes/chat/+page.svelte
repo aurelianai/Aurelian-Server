@@ -8,7 +8,6 @@
 
 	import type { Message } from '$lib/types';
 
-	import { onMount } from 'svelte';
 	import { list_messages, new_message, complete } from './crud';
 	import { selected_session_id } from '$lib/stores';
 
@@ -19,7 +18,6 @@
 	selected_session_id.subscribe(async (id: number) => {
 		if (id !== undefined) {
 			messages = await list_messages();
-			console.log(messages);
 		}
 	});
 
@@ -51,7 +49,7 @@
 	<ChatHeader disabled={generating} />
 </div>
 
-<div class="flex flex-col h-full bg-[url('/login-background.svg')] bg-tertiary-50-200-token">
+<div class="flex flex-col h-full">
 	{#if messages === undefined}
 		<div class="flex flex-col items-center justify-center w-full space-y-5 h-96">
 			<code>Fetching your messages ...</code>
@@ -76,6 +74,6 @@
 	{/if}
 </div>
 
-<div class="fixed right-0 flex-grow px-10 left-64 bottom-8">
+<div class="fixed right-0 flex justify-center flex-grow left-64 bottom-4">
 	<ChatInput on:send_message={handle_message_send} disabled={generating} />
 </div>

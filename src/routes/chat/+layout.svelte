@@ -14,7 +14,9 @@
 		<ChatSidebar user={data} />
 	</div>
 
-	<div class="fixed top-0 bottom-0 right-0 overflow-y-auto left-64">
+	<div
+		class="fixed top-0 bottom-0 right-0 overflow-y-auto left-64 bg-[url('/login-background.svg')] bg-tertiary-50-200-token"
+	>
 		<slot />
 	</div>
 </div>

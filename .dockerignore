@@ -8,3 +8,4 @@ eslint*
 prettier*
 .git
 .gitignore
+.env
