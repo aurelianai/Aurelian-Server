@@ -57,14 +57,14 @@
 		</div>
 	{:else if messages.length !== 0}
 		<div class="w-full p-5 space-y-3">
-			<div class="w-full h-24" />
+			<div class="w-full h-16" />
 			{#each messages as message}
 				<MessageBubble msg={message} />
 			{/each}
 			{#if generating}
 				<GeneratingSpinner />
 			{/if}
-			<div class="w-full h-36" />
+			<div class="w-full h-16" />
 			<div bind:this={bottom} />
 		</div>
 	{:else}

@@ -5,7 +5,7 @@ import { prisma } from '$lib/server/prisma-client'
 
 export const GET = (async ({ params, locals }) => {
    if (!locals.auth_store.isValid) {
-      throw redirect(303, '/login')
+      throw error(403, "Insufficient Permissions")
    }
 
    const chat_id = Number(params.slug)
@@ -27,7 +27,7 @@ export const GET = (async ({ params, locals }) => {
 
 export const POST = (async ({ request, params, locals }) => {
    if (!locals.auth_store.isValid) {
-      throw redirect(303, '/login')
+      throw error(403, "Insufficient Permissions")
    }
 
    const chat_id = Number(params.slug)
@@ -47,7 +47,7 @@ export const POST = (async ({ request, params, locals }) => {
    })
 
    return json(message)
-})
+}) satisfies RequestHandler
 
 
 const validate_chat_ownership = async (chat_id: number, user_id: number) => {
@@ -63,6 +63,6 @@ const validate_chat_ownership = async (chat_id: number, user_id: number) => {
       throw error(404, "Chat Not Found")
    }
    if (chat_owner_id.userId !== user_id) {
-      throw error(403, "Insufficient Permissions")
+      throw error(500, "User does not own this chat.")
    }
 }

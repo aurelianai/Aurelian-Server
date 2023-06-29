@@ -15,7 +15,7 @@ const openai = new OpenAIApi(config)
 // Completes chat conversation, saves & returns new chat 
 export const POST = (async ({ params, locals }) => {
    if (!locals.auth_store.isValid) {
-      throw redirect(303, '/login')
+      throw error(404, "Insufficient Permissions")
    }
 
    const chat_id = Number(params.slug)
@@ -73,6 +73,6 @@ const validate_chat_ownership = async (chat_id: number, user_id: number) => {
       throw error(404, "Chat Not Found")
    }
    if (chat_owner_id.userId !== user_id) {
-      throw error(403, "Insufficient Permissions")
+      throw error(500, "User does not own this chat")
    }
 }

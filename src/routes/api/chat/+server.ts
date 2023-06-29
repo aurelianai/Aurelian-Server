@@ -42,7 +42,7 @@ export const POST = (async ({ locals }) => {
 // Update Chat (by id in body)
 export const PATCH = (async ({ request, locals }) => {
    if (!locals.auth_store.isValid) {
-      throw error(403, "Not Authorized to View this Resource")
+      throw error(403, "Insufficient Permissions")
    }
    const user = await prisma.user.findUnique({
       where: {

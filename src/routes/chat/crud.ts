@@ -5,11 +5,13 @@ import { selected_session_id } from '$lib/stores'
 // Chat
 export const list_chats = async (): Promise<Chat[]> => {
    const res = await fetch("/api/chat", { method: "GET" })
+   check_status(res)
    return res.json()
 }
 
 export const new_chat = async (): Promise<Chat> => {
    const res = await fetch("/api/chat", { method: "POST" })
+   check_status(res)
    return res.json()
 }
 
@@ -19,15 +21,17 @@ export const update_chat = async (id: number, new_name: string) => {
       method: "PATCH",
       body: JSON.stringify(body)
    })
+   check_status(res)
    return res.json()
 }
 
 export const delete_chat = async (id: number) => {
    const body: Delete = { id: id }
-   await fetch("/api/chat", {
+   const res = await fetch("/api/chat", {
       method: "DELETE",
       body: JSON.stringify(body)
    })
+   check_status(res)
 }
 
 
@@ -35,6 +39,7 @@ export const delete_chat = async (id: number) => {
 export const list_messages = async (): Promise<Message[]> => {
    await ssid()
    const res = await fetch(`/api/chat/${get(selected_session_id)}`)
+   check_status(res)
    return res.json()
 }
 
@@ -42,12 +47,14 @@ export const new_message = async (role: "USER" | "MODEL", content: string): Prom
    await ssid()
    const body: Message = { role, content }
    const res = await fetch(`/api/chat/${get(selected_session_id)}`, { method: "POST", body: JSON.stringify(body) })
+   check_status(res)
    return res.json()
 }
 
 export const complete = async (): Promise<Message> => {
    await ssid()
    const res = await fetch(`/api/chat/${get(selected_session_id)}/complete`, { method: "POST" })
+   check_status(res)
    return res.json()
 }
 
@@ -55,6 +62,7 @@ export const complete = async (): Promise<Message> => {
 // Models
 export const list_models = async (): Promise<TextGenModel[]> => {
    const res = await fetch('/api/models')
+   check_status(res)
    return res.json()
 }
 
@@ -63,5 +71,11 @@ export const list_models = async (): Promise<TextGenModel[]> => {
 export const ssid = async () => {
    while (get(selected_session_id) === undefined) {
       await new Promise(r => setTimeout(r, 100))
+   }
+}
+
+export const check_status = (r: Response) => {
+   if (r.status === 403) {
+      window.location.replace('/login?ref=chat')
    }
 }
