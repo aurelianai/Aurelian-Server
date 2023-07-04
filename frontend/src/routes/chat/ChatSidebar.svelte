@@ -1,5 +1,5 @@
 <script lang="ts">
-	import { Avatar, LightSwitch, ListBox, ListBoxItem, popup } from '@skeletonlabs/skeleton';
+	import { Avatar, LightSwitch, popup } from '@skeletonlabs/skeleton';
 	import ChatSidebarItem from './ChatSidebarItem.svelte';
 
 	import type { PopupSettings } from '@skeletonlabs/skeleton';
@@ -9,7 +9,7 @@
 	import { selected_session_id } from '$lib/stores';
 	import { list_chats, new_chat, delete_chat } from './crud';
 
-	export let user: User;
+	export let user: User = { id: 0, email: 'Hello' };
 
 	let chats: Chat[] = [];
 	onMount(async () => {

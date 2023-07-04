@@ -1,7 +1,7 @@
 services:
   aels:
     build:
-      context: .
+      context: ./frontend
       args:
         env: "dev"
     environment:

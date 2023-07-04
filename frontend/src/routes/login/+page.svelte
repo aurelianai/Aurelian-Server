@@ -1,13 +1,10 @@
 <script lang="ts">
-	import type { ActionData } from './$types';
 	import { enhance } from '$app/forms';
 	import { LightSwitch, focusTrap } from '@skeletonlabs/skeleton';
-	import { page } from '$app/stores';
 
-	const ref = $page.url.searchParams.get('ref');
+	const ref = 'chat';
 
 	let password_visible = false;
-	export let form: ActionData;
 </script>
 
 <svelte:head>
@@ -54,12 +51,9 @@
 								class="p-3 border-none"
 								placeholder="Email"
 								type="text"
-								value={form?.data?.email || ''}
+								value={''}
 							/>
 						</div>
-						{#if form?.errors?.email}
-							<p class="w-full text-xs text-left text-error-500">{form?.errors?.email[0]}</p>
-						{/if}
 
 						<div
 							class="input-group input-group-divider grid-cols-[auto_1fr_auto] rounded-md border-none hover:shadow-md"
@@ -72,9 +66,6 @@
 								placeholder="Password"
 							/>
 						</div>
-						{#if form?.errors?.password}
-							<p class="w-full text-xs text-left text-error-500">{form?.errors?.password[0]}</p>
-						{/if}
 						<label for="password-visible" class="flex items-center space-x-2">
 							<input
 								id="password-visible"

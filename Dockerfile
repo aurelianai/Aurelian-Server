@@ -1,6 +1,6 @@
 ARG env
 
-FROM node:slim as base
+FROM node:alpine as base
 
 RUN apt-get update
 RUN apt-get install -y openssl
@@ -8,7 +8,6 @@ RUN apt-get install -y openssl
 WORKDIR /aels
 COPY . /aels
 RUN npm i
-RUN npx prisma generate
 
 
 FROM base as dev

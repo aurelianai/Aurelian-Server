@@ -1,6 +1,6 @@
 # Aurelian Enterprise Language Server
 
-Welcome to the AELS monorepo. We use sveltekit for the api as well as the web frontend.
+Welcome to the AELS monorepo. We use sveltekit to build a frontend and then go-fiber for a backend/server.
 
 
 # Development
