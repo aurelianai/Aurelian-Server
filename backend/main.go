@@ -13,5 +13,7 @@ func main() {
 		return c.SendString("Service Healthy")
 	})
 
+	app.Static("/", "/dist")
+
 	log.Fatal(app.Listen(":2140"))
 }

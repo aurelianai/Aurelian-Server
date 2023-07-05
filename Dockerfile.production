@@ -1,0 +1,15 @@
+FROM node:alpine as svelte-build
+
+COPY ./frontend /
+RUN npm i
+RUN npm run build
+
+FROM golang:1.20.5-alpine as go-build
+COPY ./backend /
+RUN go build -o aels-server
+
+FROM alpine:latest
+ENV GO_ENV="production"
+COPY --from=svelte-build /aels/build/ /aels/dist/
+COPY --from=go-build /aels-server /aels/
+CMD [ "./aels-server" ]
