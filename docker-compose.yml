@@ -1,8 +1,17 @@
 services:
   backend:
     build: ./backend
+    environment:
+      PG_HOST: postgres
+      PG_USER: postgres
+      PG_PASS: postgres
+      PG_PORT: "5432"
+      PG_DB: postgres
+      JWT_SECRET: "SuperSecretKey"
     volumes:
       - ./backend:/backend
+    depends_on:
+      - postgres
 
   frontend:
     build: ./frontend
@@ -15,3 +24,17 @@ services:
       - "8080:8080"
     volumes:
       - ./nginx.conf:/etc/nginx/nginx.conf
+
+  postgres:
+    image: postgres:latest
+    environment:
+      POSTGRES_USER: postgres
+      POSTGRES_PASSWORD: postgres
+      POSTGRES_DB: postgres
+    ports:
+      - "5432:5432"
+    volumes:
+      - pg_data:/var/lib/postgresql/data
+
+volumes:
+  pg_data:
