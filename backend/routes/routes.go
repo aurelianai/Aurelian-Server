@@ -4,6 +4,7 @@ import (
 	"AELS/middleware"
 	"AELS/routes/api/auth"
 	"AELS/routes/api/chat"
+	"AELS/routes/api/chat/id/message"
 	"AELS/routes/api/login"
 	"AELS/routes/api/logout"
 
@@ -35,4 +36,7 @@ func SetupRoutes(app *fiber.App) {
 	Chat.Patch("/", chat.UpdateChat)
 	Chat.Delete("/", chat.DeleteChat)
 	Chat.Use(middleware.Refresh())
+
+	Message := Chat.Group("/:id/", middleware.Protected())
+	Message.Get("/", message.ListMessages)
 }
