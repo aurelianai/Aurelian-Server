@@ -15,8 +15,6 @@ import (
 func SetupRoutes(app *fiber.App) {
 	app.Use(logger.New())
 
-	app.Static("/", "/dist")
-
 	app.Get("/health", func(c *fiber.Ctx) error {
 		return c.Status(fiber.StatusOK).SendString(
 			"Aurelian Enterprise Language Server ready to recieve requests.",
@@ -27,16 +25,23 @@ func SetupRoutes(app *fiber.App) {
 	Api.Post("/login", login.LoginUser)
 	Api.Post("/logout", logout.LogoutUser)
 
-	Auth := Api.Group("/auth", middleware.Protected())
+	Auth := Api.Group("/auth", middleware.Auth())
 	Auth.Get("/", auth.CheckAuth)
 
-	Chat := Api.Group("/chat", middleware.Protected())
+	Chat := Api.Group("/chat", middleware.Auth())
 	Chat.Get("/", chat.ChatList)
 	Chat.Post("/", chat.NewChat)
+	Chat.Use(middleware.ValidateQueryChatIDAndOwnership)
 	Chat.Patch("/", chat.UpdateChat)
 	Chat.Delete("/", chat.DeleteChat)
-	Chat.Use(middleware.Refresh())
 
-	Message := Chat.Group("/:id/", middleware.Protected())
+	Message := Chat.Group("/:chatid/", middleware.Auth())
+	Message.Use(middleware.ValidateURLChatIDAndOwnership)
 	Message.Get("/", message.ListMessages)
+	Message.Post("/", message.NewMessage)
+
+	app.Static("/", "dist")
+	app.Get("/*", func(c *fiber.Ctx) error {
+		return c.SendFile("./dist/index.html")
+	})
 }

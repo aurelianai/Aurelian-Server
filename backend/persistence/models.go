@@ -1,26 +1,34 @@
 package persistence
 
-import "gorm.io/gorm"
+import (
+	"time"
+)
 
 type User struct {
-	gorm.Model
-	FirstName *string
-	LastName  *string
-	Email     *string
-	Password  *string
-	Chats     []Chat `gorm:"constraint:OnUpdate:CASCADE,OnDelete:CASCADE;"`
+	ID        uint64 `gorm:"primarykey;type:BIGINT"`
+	CreatedAt time.Time
+	UpdatedAt time.Time
+	FirstName *string `gorm:"not null"`
+	LastName  *string `gorm:"not null"`
+	Email     *string `gorm:"not null:unique"`
+	Password  *string `gorm:"not null"`
+	Chats     []Chat  `gorm:"constraint:OnUpdate:CASCADE,OnDelete:CASCADE;"`
 }
 
 type Chat struct {
-	gorm.Model
-	Title    *string
-	UserID   uint
-	Messages []Message `gorm:"constraint:OnUpdate:CASCADE,OnDelete:CASCADE;"`
+	ID        uint64 `gorm:"primarykey;type:BIGINT"`
+	CreatedAt time.Time
+	UpdatedAt time.Time
+	Title     *string   `gorm:"not null"`
+	UserID    uint64    `gorm:"not null"`
+	Messages  []Message `gorm:"constraint:OnUpdate:CASCADE,OnDelete:CASCADE;"`
 }
 
 type Message struct {
-	gorm.Model
-	role   *string
-	conent *string
-	ChatID uint
+	ID        uint64 `gorm:"primarykey;type:BIGINT"`
+	CreatedAt time.Time
+	UpdatedAt time.Time
+	Role      *string `gorm:"not null"`
+	Content   *string `gorm:"not null"`
+	ChatID    uint64
 }
