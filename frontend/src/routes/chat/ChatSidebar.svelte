@@ -93,13 +93,12 @@
 
 <!--Popups and Modals-->
 <div class="w-40 space-y-2 rounded-md card" data-popup="userPopupBox">
-	<a
-		href="/logout"
+	<div
 		class="flex items-center w-full p-2 space-x-2 rounded-md justify-left hover:variant-soft-surface"
 	>
 		<img src="/logout.svg" class="h-4" alt="logout" />
 		<div class="font-medium">Log Out</div>
-	</a>
+	</div>
 </div>
 
 <style>

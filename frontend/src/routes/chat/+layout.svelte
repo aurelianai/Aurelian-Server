@@ -3,7 +3,7 @@
 </script>
 
 <svelte:head>
-	<title>Aurelian</title>
+	<title>Aurelian — Home</title>
 </svelte:head>
 
 <div class="flex h-full">

@@ -2,22 +2,37 @@ package login
 
 import (
 	"AELS/persistence"
+	"errors"
+	"fmt"
 	"os"
 	"time"
 
 	"github.com/gofiber/fiber/v2"
 	"github.com/golang-jwt/jwt"
+	"gorm.io/gorm"
 )
+
+type LoginPayload struct {
+	Email string `json:"email"`
+	Pass  string `json:"pass"`
+}
 
 // Unauthorized (401) if Uname or Pass is incorrect, 500 for all others
 func LoginUser(c *fiber.Ctx) error {
-	email := c.FormValue("email")
-	pass := c.FormValue("pass")
+
+	login_payload := new(LoginPayload)
+	if err := c.BodyParser(&login_payload); err != nil {
+		fmt.Println(err.Error())
+		return c.Status(500).SendString(err.Error())
+	}
 
 	var user persistence.User
-	res := persistence.DB.Where(&persistence.User{Email: &email, Password: &pass}).First(&user)
-	if res.RowsAffected == 0 {
-		return c.SendStatus(fiber.StatusUnauthorized)
+	err := persistence.DB.Where("email = ? AND password = ?", &login_payload.Email, &login_payload.Pass).First(&user).Error
+	if errors.Is(err, gorm.ErrRecordNotFound) {
+		return c.SendStatus(404)
+	} else if err != nil {
+		fmt.Println(err.Error())
+		return c.Status(500).SendString(err.Error())
 	}
 
 	claims := jwt.MapClaims{
@@ -29,7 +44,8 @@ func LoginUser(c *fiber.Ctx) error {
 
 	t, err := token.SignedString([]byte(os.Getenv("JWT_SECRET")))
 	if err != nil {
-		c.SendStatus(fiber.StatusInternalServerError)
+		fmt.Println(err.Error())
+		c.SendStatus(500)
 	}
 
 	auth_cookie := new(fiber.Cookie)
@@ -40,5 +56,5 @@ func LoginUser(c *fiber.Ctx) error {
 	auth_cookie.SameSite = "Strict"
 	c.Cookie(auth_cookie)
 
-	return c.SendStatus(fiber.StatusOK)
+	return c.SendStatus(200)
 }

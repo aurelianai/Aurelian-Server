@@ -40,6 +40,7 @@
 		"highlight.js": "^11.8.0",
 		"svelte-loading-spinners": "^0.3.4",
 		"svelte-markdown": "^0.2.3",
-		"svelte-typewriter": "^3.1.6"
+		"svelte-typewriter": "^3.1.6",
+		"zod": "^3.21.4"
 	}
 }

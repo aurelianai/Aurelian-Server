@@ -1,14 +1,47 @@
 <script lang="ts">
-	import { enhance } from '$app/forms';
+	import type { PageData } from './$types';
+	import { validate_login } from './forms';
+	import { goto } from '$app/navigation';
 	import { LightSwitch, focusTrap } from '@skeletonlabs/skeleton';
 
-	const ref = 'chat';
+	export let data: PageData;
 
-	let password_visible = false;
+	let email = data.email || '';
+	let pass = data.pass || '';
+	let errors: string | null = null;
+
+	const login = async () => {
+		console.log('Logging In', email, pass);
+		errors = validate_login(email, pass);
+		if (errors !== null) {
+			return;
+		}
+
+		let res: Response;
+		try {
+			res = await fetch('/api/login', {
+				method: 'POST',
+				headers: new Headers({ 'content-type': 'application/json' }),
+				body: JSON.stringify({ email: email, pass: pass })
+			});
+		} catch {
+			console.log('Error Caught');
+			errors = 'There was an error logging in, refresh the page and try again';
+			return;
+		}
+
+		if (res.status == 200) {
+			goto('/chat');
+		} else if (res.status == 404) {
+			errors = 'Email or Password is incorrect';
+		} else {
+			errors = 'There was an error logging in, refresh the page and try again';
+		}
+	};
 </script>
 
 <svelte:head>
-	<title>Aurelian | Log In</title>
+	<title>Aurelian — Log In</title>
 </svelte:head>
 
 <div
@@ -21,9 +54,13 @@
 	</div>
 
 	<div class="flex flex-col flex-grow max-w-sm space-y-5 md:max-w-md">
-		{#if ref === 'chat'}
-			<div class="p-2 mx-auto rounded-md card variant-filled-surface w-fit">
+		{#if data.ref === 'chat'}
+			<div class="flex-grow max-w-xs p-2 mx-auto text-white rounded-md card variant-filled-surface">
 				Your Session Expired!
+			</div>
+		{:else if errors !== null}
+			<div class="flex-grow max-w-xs p-2 mx-auto text-white rounded-md card variant-filled-error">
+				{errors}
 			</div>
 		{/if}
 
@@ -34,13 +71,7 @@
 				<p class="font-bold text-tertiary-600-300-token">Log in to your account</p>
 			</header>
 			<section class="p-4">
-				<form
-					method="POST"
-					action="?/login"
-					class="flex flex-col items-center space-y-10"
-					use:enhance
-					use:focusTrap={true}
-				>
+				<div class="flex flex-col items-center space-y-10">
 					<div class="flex flex-col w-full space-y-2 justify-left">
 						<div
 							class="input-group input-group-divider grid-cols-[auto_1fr_auto] rounded-md border-none hover:shadow-md"
@@ -49,9 +80,10 @@
 							<input
 								name="email"
 								class="p-3 border-none"
-								placeholder="Email"
 								type="text"
-								value={''}
+								placeholder="Email"
+								bind:value={email}
+								use:focusTrap={true}
 							/>
 						</div>
 
@@ -62,28 +94,20 @@
 							<input
 								name="password"
 								class="p-3 border-none"
-								type={password_visible ? 'text' : 'password'}
+								type="password"
 								placeholder="Password"
+								bind:value={pass}
 							/>
 						</div>
-						<label for="password-visible" class="flex items-center space-x-2">
-							<input
-								id="password-visible"
-								type="checkbox"
-								class="w-3 h-3 checkbox"
-								bind:checked={password_visible}
-							/>
-							<p>Show Password</p>
-						</label>
 					</div>
-
 					<button
-						type="submit"
 						class="mt-10 font-bold rounded-md btn bg-[radial-gradient(ellipse_at_top_left,_var(--tw-gradient-stops))] variant-gradient-secondary-primary w-36"
+						on:click={login}
+						disabled={email === '' || pass === ''}
 					>
 						Log In
 					</button>
-				</form>
+				</div>
 			</section>
 		</div>
 	</div>

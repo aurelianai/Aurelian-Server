@@ -3,6 +3,7 @@ package chat
 import (
 	"AELS/persistence"
 	"errors"
+	"log"
 
 	"github.com/gofiber/fiber/v2"
 	"gorm.io/gorm"
@@ -37,6 +38,7 @@ func NewChat(c *fiber.Ctx) error {
 func UpdateChat(c *fiber.Ctx) error {
 	new_chat := new(persistence.Chat)
 	if err := c.BodyParser(new_chat); err != nil {
+		log.Printf("%s", err.Error())
 		return c.Status(500).SendString(err.Error())
 	}
 
@@ -44,6 +46,7 @@ func UpdateChat(c *fiber.Ctx) error {
 	if err := persistence.DB.First(&cur_chat, new_chat.ID).Error; errors.Is(err, gorm.ErrRecordNotFound) {
 		return c.SendStatus(404)
 	} else if err != nil {
+		log.Printf("%s", err.Error())
 		return c.Status(500).SendString(err.Error())
 	}
 	if cur_chat.ID != c.Locals("uid").(uint) {
@@ -51,6 +54,7 @@ func UpdateChat(c *fiber.Ctx) error {
 	}
 
 	if err := persistence.DB.Save(&new_chat).Error; err != nil {
+		log.Printf("%s", err.Error())
 		return c.Status(500).SendString(err.Error())
 	}
 
