@@ -1,24 +1,15 @@
 export type Chat = {
-	id: number;
-	name: string;
+	ID: number;
+	Title: string;
+	CreatedAt: string;
 };
-
-export type Delete = {
-	id: number
-}
 
 export type Message = {
-	role: 'USER' | 'MODEL';
-	content: string;
-};
-
-export type TextGenModel = {
-	id: number;
-	name: string;
-	description: string;
+	Role: 'USER' | 'MODEL';
+	Content: string;
 };
 
 export type User = {
-	id: number,
-	email: string
+	ID: number,
+	Email: string
 }

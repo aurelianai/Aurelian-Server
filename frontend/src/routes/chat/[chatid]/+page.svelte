@@ -3,21 +3,19 @@
 	import ChatInput from '$lib/components/chat/ChatInput.svelte';
 	import ChatSuggestions from '$lib/components/chat/ChatSuggestions.svelte';
 	import GeneratingSpinner from '$lib/components/chat/GeneratingSpinner.svelte';
-	import type { Chat, Message } from '$lib/types';
-	import { ChatStore, new_message, complete, new_chat } from '$lib/ts/chat/util';
-	import { goto } from '$app/navigation';
+	import type { Message } from '$lib/types';
+	import type { PageData } from './$types';
+	import { new_message, complete } from '../../../lib/ts/chat/util';
 
-	export let messages: Message[] = [];
-	let chat: Chat | null = null;
+	export let data: PageData;
 	let generating: boolean = false;
 	let bottom: HTMLDivElement;
 
 	const handle_message_send = async (event: any) => {
-		$ChatStore = [await new_chat(), ...$ChatStore];
-		chat = $ChatStore[0];
-		// TODO automatically name chat
-
-		messages = [...messages, await new_message(chat.ID, 'USER', event.detail.message_content)];
+		data.messages = [
+			...data.messages,
+			await new_message(data.chatid, 'USER', event.detail.message_content)
+		];
 		generating = true;
 		setTimeout(() => {
 			bottom.scrollIntoView({
@@ -29,23 +27,21 @@
 
 		let model_response: Message;
 		try {
-			model_response = await complete(chat.ID);
+			model_response = await complete(data.chatid);
 		} catch (err) {
-			// TODO display error when completion fails
 			generating = false;
 			return;
 		}
 
-		messages = [...messages, model_response];
+		data.messages = [...data.messages, model_response];
 		generating = false;
-		goto(`/chat/${chat.ID}`);
 	};
 </script>
 
 <div class="flex flex-col h-full">
-	{#if messages.length !== 0}
+	{#if data.messages.length !== 0}
 		<div class="w-full p-5 space-y-3">
-			{#each messages as message}
+			{#each data.messages as message}
 				<MessageBubble msg={message} />
 			{/each}
 			{#if generating}

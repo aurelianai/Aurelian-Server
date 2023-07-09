@@ -11,8 +11,10 @@
 	storeHighlightJs.set(hljs);
 	// For Popups
 	import { computePosition, autoUpdate, offset, shift, flip, arrow } from '@floating-ui/dom';
-	import { storePopup } from '@skeletonlabs/skeleton';
+	import { storePopup, setInitialClassState } from '@skeletonlabs/skeleton';
 	storePopup.set({ computePosition, autoUpdate, offset, shift, flip, arrow });
+
+	setInitialClassState();
 </script>
 
 <slot />

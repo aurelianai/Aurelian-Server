@@ -4,8 +4,8 @@ import { goto } from '$app/navigation'
 export const load = (async () => {
    let res = await fetch("/api/auth")
    if (res.status == 200) {
-      goto("/chat")
+      await goto("/chat")
    } else {
-      goto("/login")
+      await goto("/login")
    }
 }) satisfies PageLoad

@@ -12,7 +12,7 @@ import (
 func ChatList(c *fiber.Ctx) error {
 	uid := c.Locals("uid").(uint64)
 	var chats []persistence.Chat
-	if err := persistence.DB.Where("user_id = ?", uid).Find(&chats).Error; err != nil {
+	if err := persistence.DB.Where("user_id = ?", uid).Order("id asc").Find(&chats).Error; err != nil {
 		err := fmt.Sprintf("Error retreiving chats for uid: %d, err: %s", uid, err.Error())
 		fmt.Println(err)
 		return c.Status(500).SendString(err)
@@ -21,16 +21,12 @@ func ChatList(c *fiber.Ctx) error {
 	return c.JSON(chats)
 }
 
-// TODO use validator and custom request body for robustness
-// If user doesn't exist, it will violate foreign key constraint
-// on the UserID column
 func NewChat(c *fiber.Ctx) error {
-	new_chat := new(persistence.Chat)
-	if err := c.BodyParser(new_chat); err != nil {
-		return c.Status(500).SendString(err.Error())
-	}
+	DEFAULT_CHAT_NAME := "Untitled Chat"
 
+	new_chat := new(persistence.Chat)
 	new_chat.UserID = c.Locals("uid").(uint64)
+	new_chat.Title = &DEFAULT_CHAT_NAME
 	if err := persistence.DB.Create(&new_chat).Error; err != nil {
 		return c.Status(500).SendString(err.Error())
 	}

@@ -68,7 +68,7 @@ func ValidateURLChatIDAndOwnership(c *fiber.Ctx) error {
 	uid := c.Locals("uid")
 	chatid, err := strconv.ParseUint(c.Params("chatid"), 10, 64)
 	if err != nil {
-		err := fmt.Sprintf("Recieved invalid ChatID param: %s err: %s", c.Params("ChatID"), err.Error())
+		err := fmt.Sprintf("Recieved invalid chatid param: '%s' err: %s", c.Params("chatid"), err.Error())
 		fmt.Println(err)
 		return c.Status(400).SendString(err)
 	}

@@ -16,7 +16,7 @@ func SetupRoutes(app *fiber.App) {
 	app.Use(logger.New())
 
 	app.Get("/health", func(c *fiber.Ctx) error {
-		return c.Status(fiber.StatusOK).SendString(
+		return c.Status(200).SendString(
 			"Aurelian Enterprise Language Server ready to recieve requests.",
 		)
 	})
@@ -31,11 +31,10 @@ func SetupRoutes(app *fiber.App) {
 	Chat := Api.Group("/chat", middleware.Auth())
 	Chat.Get("/", chat.ChatList)
 	Chat.Post("/", chat.NewChat)
-	Chat.Use(middleware.ValidateQueryChatIDAndOwnership)
-	Chat.Patch("/", chat.UpdateChat)
-	Chat.Delete("/", chat.DeleteChat)
+	Chat.Patch("/", middleware.ValidateQueryChatIDAndOwnership, chat.UpdateChat)
+	Chat.Delete("/", middleware.ValidateQueryChatIDAndOwnership, chat.DeleteChat)
 
-	Message := Chat.Group("/:chatid/", middleware.Auth())
+	Message := Chat.Group("/:chatid")
 	Message.Use(middleware.ValidateURLChatIDAndOwnership)
 	Message.Get("/", message.ListMessages)
 	Message.Post("/", message.NewMessage)
