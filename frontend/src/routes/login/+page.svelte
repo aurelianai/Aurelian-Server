@@ -49,7 +49,7 @@
 >
 	<div class="fixed top-4 left-4">
 		<div class="p-4 rounded-md shadow-xl card">
-			<LightSwitch />
+			<LightSwitch rounded="rounded-md" />
 		</div>
 	</div>
 

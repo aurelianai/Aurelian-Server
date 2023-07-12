@@ -7,6 +7,7 @@
 	import { Avatar } from '@skeletonlabs/skeleton';
 
 	import type { Message } from '$lib/types';
+	import CodeSpan from '../markdown/CodeSpan.svelte';
 
 	export let msg: Message;
 	let user = { ID: 0, FirstName: 'Ethan', LastName: 'Steere', email: 'ethansteere1@gmail.com' };
@@ -27,14 +28,19 @@
 		<p class="break-all whitespace-pre-wrap">{msg.Content}</p>
 	</div>
 {:else}
-	<div
-		class="flex justify-start max-w-3xl p-6 mx-auto space-x-5 rounded-md shadow-xl card model-bg"
-	>
-		<Avatar src="/logo.svg" width="w-8" rounded="rounded-md" background="bg-inherit" />
-		<SvelteMarkdown
-			source={msg.Content}
-			renderers={{ code: Code, table: Table, list: List, listitem: ListItem }}
-		/>
+	<div class="flex items-start max-w-3xl p-6 mx-auto space-x-5 rounded-md shadow-xl card model-bg">
+		<div class="w-10 h-full">
+			<Avatar src="/logo.svg" width="w-8" rounded="rounded-md" background="bg-inherit" />
+		</div>
+		<div class="flex flex-col w-full space-y-5">
+			<SvelteMarkdown
+				source={msg.Content}
+				renderers={{ code: Code, codespan: CodeSpan, table: Table, list: List, listitem: ListItem }}
+				on:parsed={(event) => {
+					console.log(event.detail.tokens);
+				}}
+			/>
+		</div>
 	</div>
 {/if}
 

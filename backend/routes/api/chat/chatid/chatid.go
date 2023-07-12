@@ -1,4 +1,4 @@
-package message
+package chatid
 
 import (
 	"AELS/persistence"
@@ -7,8 +7,7 @@ import (
 	"github.com/gofiber/fiber/v2"
 )
 
-// Validates ChatID Parameter
-// Verifies Chat Exists, User Owns it
+// Returns all messages in chat
 func ListMessages(c *fiber.Ctx) error {
 	chatid := c.Locals("chatid").(uint64)
 
@@ -22,6 +21,7 @@ func ListMessages(c *fiber.Ctx) error {
 	return c.JSON(messages)
 }
 
+// Creates a new message in chat
 func NewMessage(c *fiber.Ctx) error {
 	chatid := c.Locals("chatid").(uint64)
 

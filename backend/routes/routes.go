@@ -4,7 +4,8 @@ import (
 	"AELS/middleware"
 	"AELS/routes/api/auth"
 	"AELS/routes/api/chat"
-	"AELS/routes/api/chat/id/message"
+	"AELS/routes/api/chat/chatid"
+	"AELS/routes/api/chat/chatid/complete"
 	"AELS/routes/api/login"
 	"AELS/routes/api/logout"
 
@@ -36,8 +37,9 @@ func SetupRoutes(app *fiber.App) {
 
 	Message := Chat.Group("/:chatid")
 	Message.Use(middleware.ValidateURLChatIDAndOwnership)
-	Message.Get("/", message.ListMessages)
-	Message.Post("/", message.NewMessage)
+	Message.Get("/", chatid.ListMessages)
+	Message.Post("/", chatid.NewMessage)
+	Message.Post("/complete", complete.CompleteChat())
 
 	app.Static("/", "dist")
 	app.Get("/*", func(c *fiber.Ctx) error {

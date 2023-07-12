@@ -20,7 +20,7 @@ type LoginPayload struct {
 // Unauthorized (401) if Uname or Pass is incorrect, 500 for all others
 func LoginUser(c *fiber.Ctx) error {
 
-	login_payload := new(LoginPayload)
+	var login_payload LoginPayload
 	if err := c.BodyParser(&login_payload); err != nil {
 		fmt.Println(err.Error())
 		return c.Status(500).SendString(err.Error())

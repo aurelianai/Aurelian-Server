@@ -3,7 +3,7 @@
 	export let start: number;
 </script>
 
-<div class="pl-10 pr-4 py-4">
+<div class="pl-10 pr-4">
 	{#if ordered}
 		<ol {start} class="list-decimal space-y-1"><slot /></ol>
 	{:else}

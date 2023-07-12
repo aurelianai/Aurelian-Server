@@ -72,7 +72,7 @@
 			</p>
 		</button>
 
-		<LightSwitch />
+		<LightSwitch rounded="rounded-md" />
 	</div>
 </div>
 

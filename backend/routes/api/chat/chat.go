@@ -26,7 +26,7 @@ func NewChat(c *fiber.Ctx) error {
 
 	new_chat := new(persistence.Chat)
 	new_chat.UserID = c.Locals("uid").(uint64)
-	new_chat.Title = &DEFAULT_CHAT_NAME
+	new_chat.Title = DEFAULT_CHAT_NAME
 	if err := persistence.DB.Create(&new_chat).Error; err != nil {
 		return c.Status(500).SendString(err.Error())
 	}
