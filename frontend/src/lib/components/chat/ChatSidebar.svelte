@@ -1,5 +1,6 @@
 <script lang="ts">
 	import { Avatar, LightSwitch, popup } from '@skeletonlabs/skeleton';
+	import { Icon, ArrowLeftOnRectangle } from 'svelte-hero-icons';
 	import ChatSidebarItem from './ChatSidebarItem.svelte';
 	import type { PopupSettings } from '@skeletonlabs/skeleton';
 	import type { Chat } from '$lib/types';
@@ -25,13 +26,25 @@
 		placement: 'top',
 		closeQuery: ''
 	};
+
+	const logout = async () => {
+		const res = await fetch('/api/logout', {
+			headers: new Headers({ 'Content-Type': 'application/json' }),
+			method: 'POST'
+		});
+		if (res.status == 200) {
+			goto('/login');
+		} else {
+			// TODO pop error popup here!
+		}
+	};
 </script>
 
 <div class="fixed top-0 left-0 w-64 px-3 pt-4 menu-button-bg">
 	<button
 		class="w-full h-10 font-bold rounded-md btn text-md variant-filled-primary"
 		on:click={async () => {
-			goto(`/chat`);
+			goto('/chat');
 		}}
 	>
 		New Chat
@@ -77,14 +90,14 @@
 </div>
 
 <!--Popups and Modals-->
-<div class="w-40 space-y-2 rounded-md card" data-popup="userPopupBox">
+<button class="w-40 space-y-2 rounded-md card" data-popup="userPopupBox" on:click={logout}>
 	<div
 		class="flex items-center w-full p-2 space-x-2 rounded-md justify-left hover:variant-soft-surface"
 	>
-		<img src="/logout.svg" class="h-4" alt="logout" />
+		<Icon src={ArrowLeftOnRectangle} class="w-6" />
 		<div class="font-medium">Log Out</div>
 	</div>
-</div>
+</button>
 
 <style>
 	.menu-button-bg {
