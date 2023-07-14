@@ -3,11 +3,8 @@
 	import { Icon, ArrowLeftOnRectangle } from 'svelte-hero-icons';
 	import ChatSidebarItem from './ChatSidebarItem.svelte';
 	import type { PopupSettings } from '@skeletonlabs/skeleton';
-	import type { User } from '$lib/types';
-	import { delete_chat, ChatStore } from '$lib/ts/chat/util';
+	import { delete_chat, ChatStore, UserStore } from '$lib/ts/chat/util';
 	import { goto } from '$app/navigation';
-
-	export let user: User;
 
 	const delete_event_handler = async (event: any) => {
 		await delete_chat(event.detail.id);
@@ -69,14 +66,14 @@
 			use:popup={userPopupBox}
 		>
 			<Avatar
-				initials={user.FirstName.charAt(0) + user.LastName.charAt(0)}
+				initials={$UserStore.FirstName.charAt(0) + $UserStore.LastName.charAt(0)}
 				background="variant-filled-primary"
 				class="w-7"
 				rounded="rounded-md"
 				fill="fill-white"
 			/>
 			<p class="w-24 h-6 font-semibold truncate">
-				{`${user.FirstName} ${user.LastName}`}
+				{`${$UserStore.FirstName} ${$UserStore.LastName}`}
 			</p>
 		</button>
 

@@ -1,4 +1,4 @@
-import type { Chat, Message } from '$lib/types'
+import type { Chat, Message, User } from '$lib/types'
 import { writable } from 'svelte/store'
 
 
@@ -46,3 +46,4 @@ export const complete = async (chatid: number): Promise<Message> => {
 }
 
 export const ChatStore = writable<Chat[]>()
+export const UserStore = writable<User>()

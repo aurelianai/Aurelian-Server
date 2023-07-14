@@ -1,8 +1,5 @@
 <script lang="ts">
 	import ChatSidebar from '$lib/components/chat/ChatSidebar.svelte';
-	import type { LayoutData } from './$types';
-
-	export let data: LayoutData;
 </script>
 
 <svelte:head>
@@ -11,7 +8,7 @@
 
 <div class="flex h-full">
 	<div class="fixed w-64 h-full overflow-y-hidden shadow-md hover:overflow-y-auto">
-		<ChatSidebar user={data.user} />
+		<ChatSidebar />
 	</div>
 
 	<div

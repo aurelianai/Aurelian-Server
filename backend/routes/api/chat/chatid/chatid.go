@@ -12,7 +12,7 @@ func ListMessages(c *fiber.Ctx) error {
 	chatid := c.Locals("chatid").(uint64)
 
 	var messages []persistence.Message
-	if err := persistence.DB.Where("chat_id = ?", chatid).Find(&messages).Error; err != nil {
+	if err := persistence.DB.Where("chat_id = ?", chatid).Order("id ASC").Find(&messages).Error; err != nil {
 		err := fmt.Sprintf("Error Collecting Messages: %s", err.Error())
 		fmt.Println(err)
 		return c.Status(500).SendString(err)
