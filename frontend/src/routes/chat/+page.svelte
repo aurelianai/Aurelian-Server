@@ -42,6 +42,10 @@
 	};
 </script>
 
+<svelte:head>
+	<title>Aurelian — New Chat</title>
+</svelte:head>
+
 <div class="flex flex-col h-full">
 	{#if messages.length !== 0}
 		<div class="w-full p-5 space-y-3">

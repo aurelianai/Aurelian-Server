@@ -5,7 +5,7 @@
 	import GeneratingSpinner from '$lib/components/chat/GeneratingSpinner.svelte';
 	import type { Message } from '$lib/types';
 	import type { PageData } from './$types';
-	import { new_message, complete } from '../../../lib/ts/chat/util';
+	import { ChatStore, new_message, complete } from '$lib/ts/chat/util';
 
 	export let data: PageData;
 	let generating: boolean = false;
@@ -37,6 +37,10 @@
 		generating = false;
 	};
 </script>
+
+<svelte:head>
+	<title>{data.chatTitle || 'Aurelian — Chat'}</title>
+</svelte:head>
 
 <div class="flex flex-col h-full">
 	{#if data.messages.length !== 0}
