@@ -15,7 +15,7 @@ export const load = (async ({ fetch, params }) => {
       goto('/login')
    }
 
-   const chatTitle = get(ChatStore).find((c) => c.ID === +params.chatid)?.Title
+   const chatTitle = get(ChatStore)?.find((c) => c.ID === +params.chatid)?.Title
 
    let messages: Message[] = await res.json()
    return { chatid: +params.chatid, chatTitle, messages }

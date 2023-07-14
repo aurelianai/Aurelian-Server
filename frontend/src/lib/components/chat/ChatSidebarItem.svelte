@@ -11,7 +11,6 @@
 	import { createEventDispatcher } from 'svelte';
 	import { focusTrap } from '@skeletonlabs/skeleton';
 	import { update_chat } from '$lib/ts/chat/util';
-	import { goto } from '$app/navigation';
 	import { page } from '$app/stores';
 
 	export let chat: Chat;
@@ -26,32 +25,35 @@
 	});
 
 	const dispatch = createEventDispatcher();
+
+	const active_input = (el: HTMLElement) => {
+		el.focus();
+	};
 </script>
 
 <!-- svelte-ignore a11y-mouse-events-have-key-events -->
-<div
+<form
 	class:variant-ringed-primary={isActive}
 	class:variant-soft-surface={hover && !isActive}
 	class="flex items-center w-full h-10 p-2 font-medium rounded-md text-md"
+	action={`/chat/${chat.ID}`}
+	method="GET"
 	on:mouseenter={() => (hover = true)}
 	on:mouseleave={() => (hover = false)}
 >
 	{#if !confirm_edit}
-		<button
-			class="flex items-center justify-start w-48 space-x-2"
-			on:click={() => {
-				goto(`/chat/${chat.ID}/`);
-			}}
-		>
+		<button class="flex items-center justify-start w-full space-x-2" type="submit">
 			<Icon src={ChatBubbleBottomCenterText} class="w-5 h-5 text-secondary-500-400-token" solid />
-			<span class="flex truncate {isActive ? 'w-32' : 'w-40'}">{chat.Title}</span>
+			<span class="text-left truncate" class:w-32={isActive}>{chat.Title}</span>
 		</button>
 	{:else}
-		<div class="pr-2">
+		<div class="flex items-center justify-start w-full pr-2 space-x-2">
+			<Icon src={ChatBubbleBottomCenterText} class="w-5 h-5 text-secondary-500-400-token" solid />
 			<input
 				use:focusTrap={confirm_edit}
-				class="input variant-form-material"
+				class="border-none rounded-none bg-inherit input focus:outline-none"
 				bind:value={new_name}
+				use:active_input
 			/>
 		</div>
 	{/if}
@@ -66,7 +68,11 @@
 			>
 				<Icon src={PencilSquare} class="w-5 h-5 text-surface-400 hover:brightness-150" />
 			</button>
-			<button on:click={() => (confirm_delete = true)}>
+			<button
+				on:click={() => {
+					confirm_delete = true;
+				}}
+			>
 				<Icon src={Trash} class="w-5 h-5 text-surface-400 hover:brightness-150" />
 			</button>
 		</div>
@@ -108,4 +114,4 @@
 			</button>
 		</div>
 	{/if}
-</div>
+</form>

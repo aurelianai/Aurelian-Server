@@ -2,10 +2,11 @@ import type { Chat, Message } from '$lib/types'
 import { writable } from 'svelte/store'
 
 
-export const new_chat = async (): Promise<Chat> => {
+export const new_chat = async (title: string): Promise<Chat> => {
    const res = await fetch("/api/chat", {
       headers: new Headers({ 'content-type': 'application/json' }),
       method: "POST",
+      body: JSON.stringify({ title })
    })
    return res.json()
 }

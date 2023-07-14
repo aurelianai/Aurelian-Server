@@ -4,7 +4,7 @@
 	import ChatSuggestions from '$lib/components/chat/ChatSuggestions.svelte';
 	import GeneratingSpinner from '$lib/components/chat/GeneratingSpinner.svelte';
 	import type { Chat, Message } from '$lib/types';
-	import { ChatStore, new_message, complete, new_chat } from '$lib/ts/chat/util';
+	import { ChatStore, new_message, complete, new_chat, update_chat } from '$lib/ts/chat/util';
 	import { goto } from '$app/navigation';
 
 	export let messages: Message[] = [];
@@ -13,9 +13,8 @@
 	let bottom: HTMLDivElement;
 
 	const handle_message_send = async (event: any) => {
-		$ChatStore = [await new_chat(), ...$ChatStore];
+		$ChatStore = [await new_chat(event.detail.message_content.slice(0, 22)), ...$ChatStore];
 		chat = $ChatStore[0];
-		// TODO automatically name chat
 
 		messages = [...messages, await new_message(chat.ID, 'USER', event.detail.message_content)];
 		generating = true;

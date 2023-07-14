@@ -12,7 +12,7 @@ import (
 func ChatList(c *fiber.Ctx) error {
 	uid := c.Locals("uid").(uint64)
 	var chats []persistence.Chat
-	if err := persistence.DB.Where("user_id = ?", uid).Order("id asc").Find(&chats).Error; err != nil {
+	if err := persistence.DB.Where("user_id = ?", uid).Order("id DESC").Find(&chats).Error; err != nil {
 		err := fmt.Sprintf("Error retreiving chats for uid: %d, err: %s", uid, err.Error())
 		fmt.Println(err)
 		return c.Status(500).SendString(err)
@@ -22,11 +22,17 @@ func ChatList(c *fiber.Ctx) error {
 }
 
 func NewChat(c *fiber.Ctx) error {
-	DEFAULT_CHAT_NAME := "Untitled Chat"
+	type NewChatPayload struct {
+		Title string `json:"title"`
+	}
+	var newChatPayload NewChatPayload
+	if err := c.BodyParser(&newChatPayload); err != nil {
+		return err
+	}
 
 	new_chat := new(persistence.Chat)
 	new_chat.UserID = c.Locals("uid").(uint64)
-	new_chat.Title = DEFAULT_CHAT_NAME
+	new_chat.Title = newChatPayload.Title
 	if err := persistence.DB.Create(&new_chat).Error; err != nil {
 		return c.Status(500).SendString(err.Error())
 	}
