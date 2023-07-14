@@ -8,6 +8,7 @@ import (
 	"AELS/routes/api/chat/chatid/complete"
 	"AELS/routes/api/login"
 	"AELS/routes/api/logout"
+	"AELS/routes/api/user"
 
 	"github.com/gofiber/fiber/v2"
 	"github.com/gofiber/fiber/v2/middleware/logger"
@@ -25,6 +26,9 @@ func SetupRoutes(app *fiber.App) {
 	Api := app.Group("/api")
 	Api.Post("/login", login.LoginUser)
 	Api.Post("/logout", logout.LogoutUser)
+
+	User := Api.Group("/user", middleware.Auth())
+	User.Get("/", user.GetUser)
 
 	Auth := Api.Group("/auth", middleware.Auth())
 	Auth.Get("/", auth.CheckAuth)

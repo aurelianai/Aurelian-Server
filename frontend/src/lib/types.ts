@@ -10,6 +10,7 @@ export type Message = {
 };
 
 export type User = {
-	ID: number,
-	Email: string
+	Email: string,
+	FirstName: string,
+	LastName: string
 }

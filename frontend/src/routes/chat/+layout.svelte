@@ -11,7 +11,7 @@
 
 <div class="flex h-full">
 	<div class="fixed w-64 h-full overflow-y-hidden shadow-md hover:overflow-y-auto">
-		<ChatSidebar chats={data.chats} />
+		<ChatSidebar user={data.user} />
 	</div>
 
 	<div

@@ -1,5 +1,5 @@
 import type { LayoutLoad } from './$types'
-import type { Chat } from '$lib/types'
+import type { Chat, User } from '$lib/types'
 import { goto } from '$app/navigation'
 import { ChatStore } from '$lib/ts/chat/util'
 
@@ -10,5 +10,9 @@ export const load = (async ({ fetch }) => {
    }
    const chats: Chat[] = await res.json()
    ChatStore.set(chats)
-   return { chats }
+
+   res = await fetch("/api/user")
+   const user: User = await res.json()
+
+   return { user }
 }) satisfies LayoutLoad

@@ -3,18 +3,15 @@
 	import { Icon, ArrowLeftOnRectangle } from 'svelte-hero-icons';
 	import ChatSidebarItem from './ChatSidebarItem.svelte';
 	import type { PopupSettings } from '@skeletonlabs/skeleton';
-	import type { Chat } from '$lib/types';
+	import type { User } from '$lib/types';
 	import { delete_chat, ChatStore } from '$lib/ts/chat/util';
 	import { goto } from '$app/navigation';
 
-	export let user = { id: 0, email: 'Hello' };
-	export let chats: Chat[];
-	ChatStore.subscribe((c) => (chats = c));
+	export let user: User;
 
 	const delete_event_handler = async (event: any) => {
-		// TODO better error handling here
 		await delete_chat(event.detail.id);
-		chats = chats.filter((item) => {
+		$ChatStore = $ChatStore.filter((item) => {
 			return item.ID !== event.detail.id;
 		});
 		goto('/chat');
@@ -34,8 +31,6 @@
 		});
 		if (res.status == 200) {
 			goto('/login');
-		} else {
-			// TODO pop error popup here!
 		}
 	};
 </script>
@@ -55,7 +50,7 @@
 	<nav>
 		<ul class="space-y-1">
 			<div class="w-full h-16" />
-			{#each chats as chat}
+			{#each $ChatStore as chat}
 				<!-- svelte-ignore a11y-click-events-have-key-events -->
 				<li>
 					<ChatSidebarItem {chat} on:delete={delete_event_handler} />
@@ -70,18 +65,18 @@
 	<hr class="opacity-100" />
 	<div class="flex items-center w-full space-x-3">
 		<button
-			class="flex items-center w-40 p-2 space-x-2 rounded-md hover:variant-soft-surface"
+			class="flex items-center justify-center p-2 space-x-2 rounded-md hover:variant-soft-surface"
 			use:popup={userPopupBox}
 		>
 			<Avatar
-				initials={user.email[0]}
+				initials={user.FirstName.charAt(0) + user.LastName.charAt(0)}
 				background="variant-filled-primary"
-				width="w-10"
+				class="w-7"
 				rounded="rounded-md"
 				fill="fill-white"
 			/>
-			<p class="font-semibold">
-				{user.email.split('@')[0].slice(0, 12)}
+			<p class="w-24 h-6 font-semibold truncate">
+				{`${user.FirstName} ${user.LastName}`}
 			</p>
 		</button>
 
@@ -94,7 +89,7 @@
 	<div
 		class="flex items-center w-full p-2 space-x-2 rounded-md justify-left hover:variant-soft-surface"
 	>
-		<Icon src={ArrowLeftOnRectangle} class="w-6" />
+		<Icon src={ArrowLeftOnRectangle} class="w-5" />
 		<div class="font-medium">Log Out</div>
 	</div>
 </button>
