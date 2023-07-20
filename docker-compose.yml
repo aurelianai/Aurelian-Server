@@ -9,15 +9,29 @@ services:
       PG_DB: postgres
       JWT_SECRET: "SuperSecretKey"
       INFERENCE_BACKEND: http://inf
+      USER_CREATE_ACCESS_KEY: "givemeaccess!"
     volumes:
       - ./backend:/backend
     depends_on:
       - postgres
+      - inf
+    healthcheck:
+      test: [ "CMD", "curl", "-f", "http://localhost:2140/health" ]
+      interval: 30s
+      timeout: 5s
+      retries: 5
+      start_period: 5s
 
   frontend:
     build: ./frontend
     volumes:
       - ./frontend/:/frontend
+    healthcheck:
+      test: [ "CMD", "curl", "-f", "http://localhost:5173/health" ]
+      interval: 30s
+      timeout: 5s
+      retries: 5
+      start_period: 5s
 
   nginx:
     image: nginx:latest
@@ -25,6 +39,9 @@ services:
       - "8080:8080"
     volumes:
       - ./nginx.conf:/etc/nginx/nginx.conf
+    depends_on:
+      - frontend
+      - backend
 
   postgres:
     image: postgres:latest
@@ -45,6 +62,12 @@ services:
       - 4000:80
     volumes:
       - hf_data:/data
+    healthcheck:
+      test: [ "CMD", "curl", "-f", "http://localhost:4000/health" ]
+      interval: 30s
+      timeout: 5s
+      retries: 5
+      start_period: 5s
 
 volumes:
   pg_data:
