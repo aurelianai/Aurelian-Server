@@ -14,3 +14,10 @@ I separate the frontend and backend into two separate containers. There are thre
 The development system can be launched with `docker compose up -d` and the dev service is available at [localhost:8080](localhost:8080)
 
 Although it's a bit complex, it allows for a fast pace of development due to near immediate loading of changes both the backend and frontend.
+
+# Production
+To bring up a local instance of the production containers 
+
+```docker compose up -f docker-compose.production.yml```
+
+It will be available at `localhost:2140`

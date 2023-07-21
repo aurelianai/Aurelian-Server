@@ -4,8 +4,10 @@ import (
 	"AELS/persistence"
 	"fmt"
 	"os"
+	"strings"
 
 	"github.com/gofiber/fiber/v2"
+	"github.com/sethvargo/go-password/password"
 )
 
 func GetUser(c *fiber.Ctx) error {
@@ -44,9 +46,17 @@ func CreateUser(c *fiber.Ctx) error {
 		return err
 	}
 
+	// TODO Change this to randomly pick how many symbols or numbers occur
+	res, err := password.Generate(16, 4, 3, false, false)
+	if err != nil {
+		return err
+	}
+
 	u := new(persistence.User)
 	u.Email = userSignUpPayload.Email
-	u.Password = "didntcreatepasswordyet!"
+	u.Password = res
+	u.FirstName = strings.Split(u.Email, "@")[0]
+	u.LastName = ""
 	if err := persistence.DB.Create(u).Error; err != nil {
 		return err
 	}

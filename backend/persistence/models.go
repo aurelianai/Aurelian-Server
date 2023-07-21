@@ -10,7 +10,7 @@ type User struct {
 	UpdatedAt time.Time
 	FirstName string `gorm:"not null"`
 	LastName  string `gorm:"not null"`
-	Email     string `gorm:"not null:unique"`
+	Email     string `gorm:"not null;unique"`
 	Password  string `gorm:"not null"`
 	Chats     []Chat `gorm:"constraint:OnUpdate:CASCADE,OnDelete:CASCADE;"`
 }

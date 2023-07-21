@@ -8,6 +8,7 @@ require (
 	github.com/gofiber/fiber/v2 v2.47.0
 	github.com/golang-jwt/jwt v3.2.2+incompatible
 	github.com/golang-jwt/jwt/v5 v5.0.0
+	github.com/sethvargo/go-password v0.2.0
 	github.com/sugarme/tokenizer v0.2.2
 	github.com/valyala/fasthttp v1.47.0
 	gorm.io/driver/postgres v1.5.2
