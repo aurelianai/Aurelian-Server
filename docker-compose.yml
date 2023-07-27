@@ -8,7 +8,7 @@ services:
       PG_PORT: "5432"
       PG_DB: postgres
       JWT_SECRET: "SuperSecretKey"
-      INFERENCE_BACKEND: http://inf
+      INFERENCE_BACKEND: ${INFERENCE_BACKEND}
       USER_CREATE_ACCESS_KEY: "givemeaccess!"
     volumes:
       - ./backend:/backend
@@ -56,7 +56,7 @@ services:
 
   inf:
     image: ghcr.io/huggingface/text-generation-inference:latest
-    entrypoint: "text-generation-launcher --model-id MBZUAI/LaMini-Neo-125M"
+    entrypoint: "text-generation-launcher --model-id MBZUAI/LaMini-GPT-124M"
     shm_size: "1gb"
     ports:
       - 4000:80

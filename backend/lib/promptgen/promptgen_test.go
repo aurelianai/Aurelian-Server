@@ -2,6 +2,7 @@ package promptgen
 
 import (
 	"AELS/persistence"
+	"fmt"
 	"testing"
 )
 
@@ -33,7 +34,7 @@ func TestGeneratePrompt(t *testing.T) {
 					},
 				},
 			},
-			want:    "<|prompter|>Hello, how's it going?<|endoftext|><|assistant|>I'm doing well, how can I help you?<|endoftext|><|prompter|>I need help writing an email<|endoftext|><|assistant|>",
+			want:    fmt.Sprintf("%s%sHello, how's it going?%s%sI'm doing well, how can I help you?%s%sI need help writing an email%s%s", SYSTEM_PROMPT, USER_PREFIX, USER_POSTFIX, MODEL_PREFIX, MODEL_POSTFIX, USER_PREFIX, USER_POSTFIX, MODEL_PREFIX),
 			wantErr: false,
 		},
 	}
