@@ -1,6 +1,8 @@
 services:
   backend:
     build: ./backend
+    ports:
+      - "2140:2140"
     environment:
       PG_HOST: postgres
       PG_USER: postgres
