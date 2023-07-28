@@ -1,7 +1,13 @@
 package auth
 
-import "github.com/gofiber/fiber/v2"
+import (
+	"AELS/ahttp"
+	"net/http"
+)
 
-func CheckAuth(c *fiber.Ctx) error {
-	return c.Status(200).SendString("JWT Valid")
+func CheckAuth() ahttp.Handler {
+	return func(w http.ResponseWriter, r *http.Request) (int, error) {
+		w.WriteHeader(200)
+		return 0, nil
+	}
 }

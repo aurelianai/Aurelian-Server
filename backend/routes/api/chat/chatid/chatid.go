@@ -1,43 +1,59 @@
 package chatid
 
 import (
+	"AELS/ahttp"
 	"AELS/persistence"
 	"fmt"
-
-	"github.com/gofiber/fiber/v2"
+	"net/http"
 )
 
-// Returns all messages in chat
-func ListMessages(c *fiber.Ctx) error {
-	chatid := c.Locals("chatid").(uint64)
+/*
+Error getting messages --> 500
 
-	var messages []persistence.Message
-	if err := persistence.DB.Where("chat_id = ?", chatid).Order("id ASC").Find(&messages).Error; err != nil {
-		err := fmt.Sprintf("Error Collecting Messages: %s", err.Error())
-		fmt.Println(err)
-		return c.Status(500).SendString(err)
+Otherwise --> JSON
+*/
+func ListMessages() ahttp.Handler {
+
+	return func(w http.ResponseWriter, r *http.Request) (int, error) {
+		chatid := r.Context().Value("chatid").(uint64)
+
+		var messages []persistence.Message
+		err := persistence.DB.Where("chat_id = ?", chatid).Order("id ASC").Find(&messages).Error
+
+		if err != nil {
+			return 500, fmt.Errorf("error Collecting Messages: %s", err.Error())
+		}
+
+		return ahttp.JSON(w, messages)
 	}
-
-	return c.JSON(messages)
 }
 
-// Creates a new message in chat
-func NewMessage(c *fiber.Ctx) error {
-	chatid := c.Locals("chatid").(uint64)
+/*
+Error parsing body --> 400
 
-	var new_message = new(persistence.Message)
-	if err := c.BodyParser(&new_message); err != nil {
-		err := fmt.Sprintf("Error Parsing message body: %s", err.Error())
-		fmt.Println(err)
-		return c.Status(400).SendString(err)
+Error with db interaction --> 500
+
+Success --> 200 and JSON of Message
+*/
+func NewMessage() ahttp.Handler {
+
+	return func(w http.ResponseWriter, r *http.Request) (int, error) {
+		chatid := r.Context().Value("chatid").(uint64)
+
+		var new_message = new(persistence.Message)
+		err := ahttp.ParseBody(r, &new_message)
+
+		if err != nil {
+			return 400, fmt.Errorf("error Parsing message body: %s", err.Error())
+		}
+
+		new_message.ChatID = chatid
+		err = persistence.DB.Create(&new_message).Error
+
+		if err != nil {
+			return 500, fmt.Errorf("error creating new message: %s", err.Error())
+		}
+
+		return ahttp.JSON(w, new_message)
 	}
-	new_message.ChatID = chatid
-
-	if err := persistence.DB.Create(&new_message).Error; err != nil {
-		err := fmt.Sprintf("Error creating new message: %s", err.Error())
-		fmt.Println(err)
-		return c.Status(500).SendString(err)
-	}
-
-	return c.JSON(new_message)
 }

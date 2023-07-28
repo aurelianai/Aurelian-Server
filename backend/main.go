@@ -4,15 +4,20 @@ import (
 	"AELS/persistence"
 	"AELS/routes"
 	"log"
+	"net/http"
+	"os"
 
-	"github.com/gofiber/fiber/v2"
+	"github.com/gorilla/handlers"
+	"github.com/gorilla/mux"
 )
 
 func main() {
 	persistence.InitAndMigrate()
 
-	app := fiber.New()
-	routes.SetupRoutes(app)
+	r := mux.NewRouter()
+	routes.SetupRoutes(r)
 
-	log.Fatal(app.Listen(":2140"))
+	log.Fatal(http.ListenAndServe(":2140",
+		handlers.LoggingHandler(os.Stdout, r),
+	))
 }

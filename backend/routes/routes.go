@@ -1,53 +1,48 @@
 package routes
 
 import (
-	"AELS/middleware"
-	"AELS/routes/api/auth"
+	m "AELS/middleware"
+	ch "AELS/middleware/chain"
 	"AELS/routes/api/chat"
 	"AELS/routes/api/chat/chatid"
 	"AELS/routes/api/chat/chatid/complete"
 	"AELS/routes/api/login"
 	"AELS/routes/api/logout"
 	"AELS/routes/api/user"
+	"net/http"
 
-	"github.com/gofiber/fiber/v2"
-	"github.com/gofiber/fiber/v2/middleware/logger"
+	"github.com/gorilla/mux"
 )
 
-func SetupRoutes(app *fiber.App) {
-	app.Use(logger.New())
+func SetupRoutes(r *mux.Router) {
+	r.StrictSlash(true)
 
-	app.Get("/health", func(c *fiber.Ctx) error {
-		return c.Status(200).SendString(
-			"Aurelian Enterprise Language Server ready to recieve requests.",
-		)
-	})
+	r.HandleFunc("/health", func(w http.ResponseWriter, r *http.Request) {
+		w.WriteHeader(http.StatusOK)
+		w.Write([]byte("Server Ready to Accept Connections\n"))
+	}).Methods("GET")
 
-	Api := app.Group("/api")
-	Api.Post("/login", login.LoginUser)
-	Api.Post("/logout", logout.LogoutUser)
+	r.Handle("/api/login", login.LoginUser()).Methods("POST")
+	r.Handle("/api/logout", logout.LogoutUser()).Methods("POST")
+	r.Handle("/api/auth", ch.New(m.Auth).Then(user.GetUser())).Methods("GET")
 
-	User := Api.Group("/user")
-	User.Get("/", middleware.Auth(), user.GetUser)
-	User.Post("/", user.CreateUser)
+	r.Handle("/api/user", ch.New(m.Auth).Then(user.GetUser())).Methods("GET")
+	r.Handle("/api/user", user.CreateUser()).Methods("POST") // Built in Key Auth
 
-	Auth := Api.Group("/auth", middleware.Auth())
-	Auth.Get("/", auth.CheckAuth)
+	r.Handle("/api/chat", chat.ChatList()).Methods("GET")
+	r.Handle("/api/chat", chat.NewChat()).Methods("POST")
+	r.Handle("/api/chat", ch.New(m.Auth, m.ChatOwnership).Then(chat.UpdateChat())).Methods("PATCH")
+	r.Handle("/api/chat", ch.New(m.Auth, m.ChatOwnership).Then(chat.DeleteChat())).Methods("DELETE")
 
-	Chat := Api.Group("/chat", middleware.Auth())
-	Chat.Get("/", chat.ChatList)
-	Chat.Post("/", chat.NewChat)
-	Chat.Patch("/", middleware.ValidateQueryChatIDAndOwnership, chat.UpdateChat)
-	Chat.Delete("/", middleware.ValidateQueryChatIDAndOwnership, chat.DeleteChat)
+	r.Handle("/chat/{chatid:[0-9]+}", ch.New(m.Auth, m.ChatOwnership).Then(chatid.ListMessages())).Methods("GET")
+	r.Handle("/chat/{chatid:[0-9]+}", ch.New(m.Auth, m.ChatOwnership).Then(chatid.NewMessage())).Methods("POST")
+	r.Handle("/chat/{chatid:[0-9]+}/complete", ch.New(m.Auth, m.ChatOwnership).Then(complete.CompleteChat())).Methods("POST")
 
-	Message := Chat.Group("/:chatid")
-	Message.Use(middleware.ValidateURLChatIDAndOwnership)
-	Message.Get("/", chatid.ListMessages)
-	Message.Post("/", chatid.NewMessage)
-	Message.Post("/complete", complete.CompleteChat())
+	/*
+		app.Static("/", "dist")
 
-	app.Static("/", "dist")
-	app.Get("/*", func(c *fiber.Ctx) error {
-		return c.SendFile("./dist/index.html")
-	})
+		app.Get("/*", func(c *fiber.Ctx) error {
+			return c.SendFile("./dist/index.html")
+		})
+	*/
 }
