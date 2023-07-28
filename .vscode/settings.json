@@ -104,5 +104,10 @@
 		"track",
 		"width",
 		"zIndex"
-	]
+	],
+	"[python]": {
+		"editor.defaultFormatter": "ms-python.black-formatter",
+		"editor.tabSize": 4 
+	},
+	"python.formatting.provider": "none"
 }

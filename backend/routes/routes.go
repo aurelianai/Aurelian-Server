@@ -3,6 +3,7 @@ package routes
 import (
 	m "AELS/middleware"
 	ch "AELS/middleware/chain"
+	"AELS/routes/api/auth"
 	"AELS/routes/api/chat"
 	"AELS/routes/api/chat/chatid"
 	"AELS/routes/api/chat/chatid/complete"
@@ -22,21 +23,23 @@ func SetupRoutes(r *mux.Router) {
 		w.Write([]byte("Server Ready to Accept Connections\n"))
 	}).Methods("GET")
 
-	r.Handle("/api/login", login.LoginUser()).Methods("POST")
-	r.Handle("/api/logout", logout.LogoutUser()).Methods("POST")
-	r.Handle("/api/auth", ch.New(m.Auth).Then(user.GetUser())).Methods("GET")
+	api := r.PathPrefix("/api").Subrouter()
 
-	r.Handle("/api/user", ch.New(m.Auth).Then(user.GetUser())).Methods("GET")
-	r.Handle("/api/user", user.CreateUser()).Methods("POST") // Built in Key Auth
+	api.Handle("/login", login.LoginUser()).Methods("POST")
+	api.Handle("/logout", logout.LogoutUser()).Methods("POST")
+	api.Handle("/auth", ch.New(m.Auth).Then(auth.CheckAuth())).Methods("GET")
 
-	r.Handle("/api/chat", chat.ChatList()).Methods("GET")
-	r.Handle("/api/chat", chat.NewChat()).Methods("POST")
-	r.Handle("/api/chat", ch.New(m.Auth, m.ChatOwnership).Then(chat.UpdateChat())).Methods("PATCH")
-	r.Handle("/api/chat", ch.New(m.Auth, m.ChatOwnership).Then(chat.DeleteChat())).Methods("DELETE")
+	api.Handle("/user", ch.New(m.Auth).Then(user.GetUser())).Methods("GET")
+	api.Handle("/user", user.CreateUser()).Methods("POST") // Built in Key Auth
 
-	r.Handle("/chat/{chatid:[0-9]+}", ch.New(m.Auth, m.ChatOwnership).Then(chatid.ListMessages())).Methods("GET")
-	r.Handle("/chat/{chatid:[0-9]+}", ch.New(m.Auth, m.ChatOwnership).Then(chatid.NewMessage())).Methods("POST")
-	r.Handle("/chat/{chatid:[0-9]+}/complete", ch.New(m.Auth, m.ChatOwnership).Then(complete.CompleteChat())).Methods("POST")
+	api.Handle("/chat", ch.New(m.Auth).Then(chat.ChatList())).Methods("GET")
+	api.Handle("/chat", ch.New(m.Auth).Then(chat.NewChat())).Methods("POST")
+	api.Handle("/chat", ch.New(m.Auth, m.ChatOwnership).Then(chat.UpdateChat())).Methods("PATCH")
+	api.Handle("/chat", ch.New(m.Auth, m.ChatOwnership).Then(chat.DeleteChat())).Methods("DELETE")
+
+	api.Handle("/chat/{chatid:[0-9]+}", ch.New(m.Auth, m.ChatOwnership).Then(chatid.ListMessages())).Methods("GET")
+	api.Handle("/chat/{chatid:[0-9]+}", ch.New(m.Auth, m.ChatOwnership).Then(chatid.NewMessage())).Methods("POST")
+	api.Handle("/chat/{chatid:[0-9]+}/complete", ch.New(m.Auth, m.ChatOwnership).Then(complete.CompleteChat())).Methods("POST")
 
 	/*
 		app.Static("/", "dist")

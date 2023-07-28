@@ -2,6 +2,7 @@ package chatid
 
 import (
 	"AELS/ahttp"
+	m "AELS/middleware"
 	"AELS/persistence"
 	"fmt"
 	"net/http"
@@ -15,7 +16,7 @@ Otherwise --> JSON
 func ListMessages() ahttp.Handler {
 
 	return func(w http.ResponseWriter, r *http.Request) (int, error) {
-		chatid := r.Context().Value("chatid").(uint64)
+		chatid := r.Context().Value(m.ChatID{}).(uint64)
 
 		var messages []persistence.Message
 		err := persistence.DB.Where("chat_id = ?", chatid).Order("id ASC").Find(&messages).Error
@@ -38,7 +39,7 @@ Success --> 200 and JSON of Message
 func NewMessage() ahttp.Handler {
 
 	return func(w http.ResponseWriter, r *http.Request) (int, error) {
-		chatid := r.Context().Value("chatid").(uint64)
+		chatid := r.Context().Value(m.ChatID{}).(uint64)
 
 		var new_message = new(persistence.Message)
 		err := ahttp.ParseBody(r, &new_message)

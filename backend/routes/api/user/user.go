@@ -2,6 +2,7 @@ package user
 
 import (
 	"AELS/ahttp"
+	"AELS/middleware"
 	"AELS/persistence"
 	"errors"
 	"fmt"
@@ -18,7 +19,7 @@ Retrieves User Information using ID from r.Context()
 */
 func GetUser() ahttp.Handler {
 	return func(w http.ResponseWriter, r *http.Request) (int, error) {
-		userid := r.Context().Value("userid").(uint64)
+		userid := r.Context().Value(middleware.UserID{}).(uint64)
 
 		var u persistence.User
 		err := persistence.DB.Where("id = ?", userid).First(&u).Error
@@ -58,7 +59,7 @@ func CreateUser() ahttp.Handler {
 			Email string `json:"email"`
 		}
 
-		var userSignUpPayload UserSignUpPayload
+		userSignUpPayload := new(UserSignUpPayload)
 		if err := ahttp.ParseBody(r, &userSignUpPayload); err != nil {
 			return 500, err
 		}

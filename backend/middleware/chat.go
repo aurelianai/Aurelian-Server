@@ -27,8 +27,8 @@ user owns chat, chatid is set in context
 func ChatOwnership(next ahttp.Handler) ahttp.Handler {
 
 	return func(w http.ResponseWriter, r *http.Request) (int, error) {
-		userid := r.Context().Value("userid").(uint64)
-		chatid, err := parseChatid(r)
+		userid := r.Context().Value(UserID{}).(uint64)
+		chatid, err := parseChatID(r)
 		if err != nil {
 			return 400, err
 		}
@@ -61,7 +61,7 @@ Checks for chatId that parses to uint64 in Query Params or URL Params
 
 Checks for URL first
 */
-func parseChatid(r *http.Request) (uint64, error) {
+func parseChatID(r *http.Request) (uint64, error) {
 	vars := mux.Vars(r)
 	query := r.URL.Query()
 

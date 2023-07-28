@@ -2,6 +2,7 @@ package chat
 
 import (
 	"AELS/ahttp"
+	m "AELS/middleware"
 	"AELS/persistence"
 	"fmt"
 	"net/http"
@@ -12,7 +13,7 @@ import (
 func ChatList() ahttp.Handler {
 
 	return func(w http.ResponseWriter, r *http.Request) (int, error) {
-		userid := r.Context().Value("userid").(uint64)
+		userid := r.Context().Value(m.UserID{}).(uint64)
 		var chats []persistence.Chat
 		if err := persistence.DB.Where("user_id = ?", userid).Order("id DESC").Find(&chats).Error; err != nil {
 			return 500, fmt.Errorf("error retreiving chats for uid: %d, err: %s", userid, err.Error())
@@ -35,7 +36,7 @@ func NewChat() ahttp.Handler {
 		}
 
 		new_chat := new(persistence.Chat)
-		new_chat.UserID = r.Context().Value("userid").(uint64)
+		new_chat.UserID = r.Context().Value(m.UserID{}).(uint64)
 		new_chat.Title = newChatPayload.Title
 
 		if err := persistence.DB.Create(&new_chat).Error; err != nil {
@@ -64,7 +65,7 @@ func UpdateChat() ahttp.Handler {
 			return 400, err
 		}
 
-		chatid := r.Context().Value("chatid").(uint64)
+		chatid := r.Context().Value(m.ChatID{}).(uint64)
 
 		err := persistence.DB.Model(&persistence.Chat{}).
 			Where("id = ?", chatid).
@@ -84,7 +85,7 @@ func UpdateChat() ahttp.Handler {
 func DeleteChat() ahttp.Handler {
 
 	return func(w http.ResponseWriter, r *http.Request) (int, error) {
-		chatid := r.Context().Value("chatid").(uint64)
+		chatid := r.Context().Value(m.ChatID{}).(uint64)
 
 		res := persistence.DB.Delete(&persistence.Chat{}, chatid)
 

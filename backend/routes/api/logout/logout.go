@@ -3,6 +3,7 @@ package logout
 import (
 	"AELS/ahttp"
 	"net/http"
+	"time"
 )
 
 /*
@@ -12,8 +13,12 @@ func LogoutUser() ahttp.Handler {
 	return func(w http.ResponseWriter, r *http.Request) (int, error) {
 
 		authCookie := http.Cookie{
-			Name:  "Auth",
-			Value: "",
+			Name:     "Auth",
+			Path:     "/",
+			Expires:  time.Now().Add(time.Hour * -24),
+			Value:    "",
+			SameSite: http.SameSiteStrictMode,
+			HttpOnly: true,
 		}
 		http.SetCookie(w, &authCookie)
 

@@ -17,7 +17,7 @@ import (
 /*
 Checks 'Auth' Cookie.
 
-No Cookie or Expired Token --> 401
+No Cookie, Cookie Value of "", or Expired Token --> 401
 
 Other Error --> 500
 
@@ -27,15 +27,22 @@ Signature Valid && User Exists --> Sets userid in request Context and
 refreshes Auth cookie with new JWT to expire in 24 hours
 */
 func Auth(next ahttp.Handler) ahttp.Handler {
+
 	return ahttp.Handler(func(w http.ResponseWriter, r *http.Request) (int, error) {
 		tokenCookie, err := r.Cookie("Auth")
+
 		if errors.Is(err, http.ErrNoCookie) {
 			return 401, errors.New("you are not logged in")
 		} else if err != nil {
 			return 500, err
 		}
 
+		if tokenCookie.Value == "" {
+			return 401, errors.New("you are not logged in")
+		}
+
 		token, err := jwt.ParseWithClaims(tokenCookie.Value, &JwtClaims{}, jwtKeyFunc)
+
 		if errors.Is(err, jwt.ErrTokenExpired) {
 			return 401, errors.New("your session has expired")
 		} else if err != nil {
@@ -45,11 +52,9 @@ func Auth(next ahttp.Handler) ahttp.Handler {
 
 		userid := token.Claims.(*JwtClaims).UserId
 
-		var user persistence.User
-		if err := persistence.DB.First(&user, userid).Error; errors.Is(err, gorm.ErrRecordNotFound) {
-			err := fmt.Sprintf("User id(%d) attempted access that does not exist", userid)
-			fmt.Println(err)
-			return 500, errors.New(err)
+		user := new(persistence.User)
+		if err := persistence.DB.First(user, userid).Error; errors.Is(err, gorm.ErrRecordNotFound) {
+			return 500, fmt.Errorf("user id(%d) attempted access that does not exist", userid)
 		}
 
 		if err := AssignNewCookie(userid, w); err != nil {
@@ -78,7 +83,7 @@ Type for retrieved UserId from context
 type UserID struct{}
 
 /*
-Returns Signing Key if signing method is HMAC
+Returns Signing Key if token signing method is HMAC
 */
 func jwtKeyFunc(token *jwt.Token) (interface{}, error) {
 	if _, ok := token.Method.(*jwt.SigningMethodHMAC); !ok {
