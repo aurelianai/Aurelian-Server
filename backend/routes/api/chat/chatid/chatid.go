@@ -41,8 +41,8 @@ func NewMessage() ahttp.Handler {
 	return func(w http.ResponseWriter, r *http.Request) (int, error) {
 		chatid := r.Context().Value(m.ChatID{}).(uint64)
 
-		var new_message = new(persistence.Message)
-		err := ahttp.ParseBody(r, &new_message)
+		new_message := new(persistence.Message)
+		err := ahttp.ParseBody(r, new_message)
 
 		if err != nil {
 			return 400, fmt.Errorf("error Parsing message body: %s", err.Error())

@@ -14,6 +14,7 @@ services:
       USER_CREATE_ACCESS_KEY: "givemeaccess!"
     volumes:
       - ./backend:/backend
+      - go_modules:/go
     depends_on:
       - postgres
       - inf
@@ -74,3 +75,4 @@ services:
 volumes:
   pg_data:
   hf_data:
+  go_modules:

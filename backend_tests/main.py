@@ -1,4 +1,5 @@
 import requests
+import json
 
 
 def health_check(s: requests.Session):
@@ -157,6 +158,78 @@ def list_messages(s: requests.Session, chatid: int):
         fail("Unexpected messages were found in this chat!")
 
 
+def new_message(s: requests.Session, chatid: int):
+    printline()
+    r = s.post(
+        f"http://localhost:2140/api/chat/{chatid}",
+        json={"Role": "USER", "Content": "Hello!"},
+    )
+    if r.status_code == 200:
+        success("Created Chat Successfully")
+    else:
+        fail(f"Error inserting chat. Status: {r.status_code}")
+
+
+def list_message_after_insert(s: requests.Session, chatid: int):
+    printline()
+    r = s.get(f"http://localhost:2140/api/chat/{chatid}")
+    if r.status_code == 200:
+        success("Listed Chats Successfully")
+    else:
+        fail(f"Error inserting chat. Status: {r.status_code}")
+    messages = r.json()
+    if len(messages) == 1:
+        success("Found 1 message as expected")
+    elif messages[0]["Role"] == "USER" and messages[0]["Content"] == "Hello!":
+        success("Message was the same as was inserted")
+    else:
+        fail("Message was different than expected")
+
+
+def complete_chat(s: requests.Session, chatid: int) -> str:
+    printline()
+    r = s.post(f"http://localhost:2140/api/chat/{chatid}/complete", stream=True)
+
+    if r.status_code == 200:
+        success("Event Stream Started")
+    else:
+        fail("Error occured getting stream")
+
+    tokens = []
+    for bytes in r.iter_lines():
+        if bytes == b"":
+            continue
+
+        raw = bytes.decode("utf-8")
+        print(raw)
+        # event = json.loads(raw.lstrip("data:").rstrip("/n"))
+        # tokens.append(event["token"]["text"])
+
+    success("Generation Terminated Successfully")
+
+    return "".join(tokens)
+
+
+def list_messages_after_completion(
+    s: requests.Session, chatid: int, inserted_chat: str
+):
+    printline()
+    r = s.get(f"http://localhost:2140/api/chat/{chatid}")
+
+    if r.status_code == 200:
+        success("Messages listed successfully")
+    else:
+        fail("Error ocurred listing messages")
+
+    messages = r.json()
+    if messages[0]["Content"] != "Hello!" or messages[0]["Role"] != "USER":
+        fail("Messages not occuring as expected")
+    elif messages[1]["Content"] != inserted_chat or messages[1]["Role"] != "MODEL":
+        fail("Messages coming back corrupt")
+    else:
+        success("Messages coming back as expected!")
+
+
 def test():
     with requests.Session() as s:
         health_check(s)
@@ -175,6 +248,10 @@ def test():
         list_chats(s)
         created_chat_id = create_chat(s)
         list_messages(s, created_chat_id)
+        new_message(s, created_chat_id)
+        list_message_after_insert(s, created_chat_id)
+        completion_content = complete_chat(s, created_chat_id)
+        list_messages_after_completion(s, created_chat_id, completion_content)
         delete_chat(s, created_chat_id)
 
         printline()
