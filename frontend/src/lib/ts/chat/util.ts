@@ -76,12 +76,10 @@ export async function* complete(chatid: number, sig: AbortSignal): AsyncGenerato
       while (buffer.includes("\n\n")) {
          const lineEnd = buffer.indexOf("\n\n")
          const rawJson = buffer.slice(5, lineEnd)
-         console.log(`Raw: ${rawJson}`)
          buffer = buffer.slice(lineEnd + 2)
 
          const streamResponse: StreamResponse = JSON.parse(rawJson)
          yield streamResponse.token.text
-
       }
    }
 
