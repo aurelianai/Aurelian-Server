@@ -33,7 +33,7 @@
 </script>
 
 <svelte:head>
-	<title>{data.chatTitle || 'Aurelian — Chat'}</title>
+	<title>{`"`+data.chatTitle+`"` || 'Aurelian — Chat'}</title>
 </svelte:head>
 
 <div class="flex flex-col h-full">
