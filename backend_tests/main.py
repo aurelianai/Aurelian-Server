@@ -201,9 +201,8 @@ def complete_chat(s: requests.Session, chatid: int) -> str:
             continue
 
         raw = bytes.decode("utf-8")
-        print(raw)
-        # event = json.loads(raw.lstrip("data:").rstrip("/n"))
-        # tokens.append(event["token"]["text"])
+        event = json.loads(raw.lstrip("data:").rstrip("/n"))
+        tokens.append(event["token"]["text"])
 
     success("Generation Terminated Successfully")
 

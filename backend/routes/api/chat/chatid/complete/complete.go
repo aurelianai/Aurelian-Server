@@ -8,6 +8,7 @@ import (
 	"bufio"
 	"bytes"
 	"encoding/json"
+	"errors"
 	"fmt"
 	"io"
 	"net/http"
@@ -72,75 +73,12 @@ func CompleteChat() a.Handler {
 
 		w.Header().Add("Content-Type", "text/event-stream")
 
-		flusher := w.(http.Flusher)
-		errors := make(chan error)
+		errs := make(chan error)
 		completed := make(chan struct{})      // Signals Generation successfully completed
 		canceled := make(chan struct{})       // Signals that Client Hung up and generation should stop
 		gracefullyShutdown := make(chan bool) // Signals that generation has been shutdown gracefully
 
-		go func() {
-
-			scanner := bufio.NewReader(resp.Body)
-
-			modelResponse := persistence.Message{Role: "MODEL", Content: "", ChatID: chatid}
-			persistence.DB.Create(&modelResponse)
-
-			for {
-				select {
-
-				case <-canceled:
-					gracefullyShutdown <- true // Cannot close from within routine!
-					return
-
-				default:
-					bin, err := scanner.ReadBytes('\n')
-
-					if err != nil && err != io.EOF {
-						errors <- err
-						break
-					}
-
-					if len(bin) == 1 {
-						continue
-					}
-
-					var streamResponse StreamResponse
-					msgPrefix := []byte("data:")
-					if bytes.HasPrefix(bin, msgPrefix) {
-						jsonBin := bytes.TrimPrefix(bin, msgPrefix)
-						if err := json.Unmarshal(jsonBin, &streamResponse); err != nil {
-							errors <- err
-							break
-						}
-					} else {
-						continue
-					}
-
-					// TODO Batch This
-					persistence.DB.Model(&persistence.Message{}).
-						Where("id = ?", modelResponse.ID).
-						Update("content", gorm.Expr("CONCAT(content, ?)", streamResponse.Token.Text))
-
-					fmt.Printf("Recieved token: %s\n", streamResponse.Token.Text)
-
-					if err == io.EOF {
-						break
-					}
-
-					_, err = fmt.Fprintf(w, "%s\n", bin)
-					if err != nil {
-						errors <- err
-						break
-					}
-					flusher.Flush()
-
-					if streamResponse.Token.Special {
-						close(completed)
-						return
-					}
-				}
-			}
-		}()
+		go consumeAndWrite(resp, w, chatid, errs, gracefullyShutdown, canceled, completed)
 
 		for {
 			select {
@@ -151,17 +89,87 @@ func CompleteChat() a.Handler {
 				case <-gracefullyShutdown:
 					fmt.Println("Generation gracefully stopped")
 				case <-time.After(30 * time.Second):
-					fmt.Println("Generation stop timed out after 5 seconds forcing panic")
+					fmt.Println("Generation stop timed out after 30 seconds forcing panic")
 				}
 				return 0, nil
 
-			case err := <-errors:
+			case err := <-errs:
 				return 500, fmt.Errorf("error occurred during generation: %s", err.Error())
 
 			case <-completed:
 				fmt.Println("Finished Generation Successfully")
 				return 0, nil
 			}
+		}
+	}
+}
+
+/*
+Consumes events from resp and rewrites them to w after saving to db
+*/
+func consumeAndWrite(
+	resp *http.Response,
+	w http.ResponseWriter,
+	chatid uint64,
+	errs chan error,
+	gracefullyShutdown chan bool,
+	canceled chan struct{},
+	completed chan struct{}) {
+
+	flusher := w.(http.Flusher)
+
+	scanner := bufio.NewReader(resp.Body)
+
+	modelResponse := persistence.Message{Role: "MODEL", Content: "", ChatID: chatid}
+	persistence.DB.Create(&modelResponse)
+
+	for {
+		select {
+
+		case <-resp.Request.Context().Done():
+			errs <- errors.New("inference backend hung up")
+
+		case <-canceled:
+			gracefullyShutdown <- true // Cannot close from within routine!
+			return
+
+		default:
+			bin, err := scanner.ReadBytes('\n')
+
+			if err != nil && err != io.EOF {
+				errs <- err
+				return
+			}
+
+			if len(bin) == 1 {
+				continue
+			}
+
+			var streamResponse StreamResponse
+			if err := json.Unmarshal(bytes.TrimPrefix(bin, []byte("data:")), &streamResponse); err != nil {
+				errs <- err
+				return
+			}
+
+			if streamResponse.Token.Special {
+				close(completed)
+				return
+			}
+
+			// TODO Batch This
+			if err := persistence.DB.Model(&persistence.Message{}).Where("id = ?", modelResponse.ID).Update("content", gorm.Expr("content || ?", streamResponse.Token.Text)).Error; err != nil {
+				errs <- err
+				return
+			}
+
+			_, err = fmt.Fprintf(w, "%s\n", bin)
+
+			if err != nil {
+				errs <- err
+				return
+			}
+			flusher.Flush()
+
 		}
 	}
 }

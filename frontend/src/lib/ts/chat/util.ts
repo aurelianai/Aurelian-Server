@@ -37,12 +37,54 @@ export const new_message = async (chatid: number, role: "USER" | "MODEL", conten
    return res.json()
 }
 
-export const complete = async (chatid: number): Promise<Message> => {
-   const res = await fetch(`/api/chat/${chatid}/complete`, {
+type StreamResponse = {
+	token: Token
+}
+
+type Token = {
+	id: number    
+	text: string 
+	logprob: number 
+	special: boolean 
+}
+
+export async function* complete(chatid: number, sig: AbortSignal): AsyncGenerator<string> {
+
+   const response = await fetch(`/api/chat/${chatid}/complete`, {
       headers: new Headers({ 'content-type': 'application/json' }),
-      method: "POST"
+      method: "POST" 
    })
-   return res.json()
+
+   if (!response.body) {
+      throw new Error("No Body attached to response")
+   }
+
+   let buffer = ''
+   const reader = response.body.getReader()
+   const decoder = new TextDecoder('utf-8')
+
+   while (true) {
+      if (sig.aborted) {
+         return
+      }
+
+      const { done, value } = await reader.read()
+      if (done) { return }
+
+      buffer += decoder.decode(value)
+
+      while (buffer.includes("\n\n")) {
+         const lineEnd = buffer.indexOf("\n\n")
+         const rawJson = buffer.slice(5, lineEnd)
+         console.log(`Raw: ${rawJson}`)
+         buffer = buffer.slice(lineEnd + 2)
+
+         const streamResponse: StreamResponse = JSON.parse(rawJson)
+         yield streamResponse.token.text
+
+      }
+   }
+
 }
 
 export const ChatStore = writable<Chat[]>()
