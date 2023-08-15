@@ -1,0 +1,26 @@
+services:
+  aels:
+    build:
+      dockerfile: Dockerfile.production
+    environment:
+      PG_HOST: postgres
+      PG_USER: postgres
+      PG_PASS: postgres
+      PG_PORT: "5432"
+      PG_DB: postgres
+      JWT_SECRET: "SuperSecretKey"
+      USER_CREATE_ACCESS_KEY: "givemeaccess!"
+      TOGETHER_API_KEY: ${TOGETHER_API_KEY}
+    ports:
+       - "8080:2140"
+    depends_on:
+      - postgres
+
+  postgres:
+    image: postgres:latest
+    environment:
+      POSTGRES_USER: postgres
+      POSTGRES_PASSWORD: postgres
+      POSTGRES_DB: postgres
+    ports:
+      - "5432:5432"

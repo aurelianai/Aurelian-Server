@@ -1,0 +1,13 @@
+model:
+  system: "You are a helpful assistant named Titus"
+  userPrefix: "USER: "
+  userPostfix: "<eos>"
+  modelPrefix: "MODEL: "
+  modelPostfix: "<eos>"
+  contextSize: 4096
+  chatContextSize: 2048
+
+inference:
+  endpoint: "http://inf/generate_stream"
+  backend: "text-generation-inference"
+  maxNewTokens: 50

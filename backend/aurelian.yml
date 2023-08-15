@@ -1,0 +1,11 @@
+model:
+  userPrefix: "<human>: "
+  userPostfix: "\n"
+  modelPrefix: "<bot>: "
+  modelPostfix: "\n"
+  contextSize: 4096
+
+inference:
+  backend: "together-api"
+  endpoint: https://api.together.xyz/inference
+  maxNewTokens: 1000
