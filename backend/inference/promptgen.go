@@ -1,20 +1,13 @@
-package promptgen
+package inference
 
 import (
+	"AELS/config"
 	"AELS/persistence"
 	"fmt"
 	"strings"
 
 	"github.com/sugarme/tokenizer"
 	"github.com/sugarme/tokenizer/pretrained"
-)
-
-var (
-	SYSTEM_PROMPT string = "### human: Interact in conversation to the best of your ability, please be concise, logical, intelligent and coherent.\n\n### response: Sure! sounds good.\n\n"
-	USER_PREFIX   string = "### human: "
-	USER_POSTFIX  string = "\n\n"
-	MODEL_PREFIX  string = "### response: "
-	MODEL_POSTFIX string = "\n\n"
 )
 
 /*
@@ -25,6 +18,7 @@ Generates prompt string based on Given prompt template variables
 Tokenization is done on the fly to be flexible to changes in the future
 */
 func GeneratePrompt(messages []persistence.Message) (string, error) {
+	// TODO Better Counting of Tokens, should be roughly the same for all models
 	configFile, err := tokenizer.CachedPath("OpenAssistant/falcon-7b-sft-mix-2000", "tokenizer.json")
 	if err != nil {
 		fmt.Printf("FATAL - Loading tokenizer 'tiiuae/falcon-7b' '%s'", err.Error())
@@ -40,11 +34,11 @@ func GeneratePrompt(messages []persistence.Message) (string, error) {
 	promptBuilder := strings.Builder{}
 	tokenCount := 0
 
-	en, err := tk.EncodeSingle(SYSTEM_PROMPT)
+	promptBuilder.WriteString(config.Config.Model.System)
+	en, err := tk.EncodeSingle(config.Config.Model.System)
 	if err != nil {
 		return "", err
 	}
-	promptBuilder.WriteString(SYSTEM_PROMPT)
 	tokenCount += len(en.Tokens)
 
 	for _, message := range messages {
@@ -53,14 +47,14 @@ func GeneratePrompt(messages []persistence.Message) (string, error) {
 			return "", err
 		}
 		messageTokenSize := len(en.Tokens)
-		if messageTokenSize+tokenCount <= 4096 {
+		if messageTokenSize+tokenCount <= config.Config.Model.ChatContextSize {
 			if message.Role == "USER" {
-				_, err := promptBuilder.WriteString(USER_PREFIX)
+				_, err := promptBuilder.WriteString(config.Config.Model.UserPrefix)
 				if err != nil {
 					return "", err
 				}
 			} else {
-				_, err := promptBuilder.WriteString(MODEL_PREFIX)
+				_, err := promptBuilder.WriteString(config.Config.Model.ModelPrefix)
 				if err != nil {
 					return "", err
 				}
@@ -72,12 +66,12 @@ func GeneratePrompt(messages []persistence.Message) (string, error) {
 			}
 
 			if message.Role == "USER" {
-				_, err = promptBuilder.WriteString(USER_POSTFIX)
+				_, err = promptBuilder.WriteString(config.Config.Model.UserPostfix)
 				if err != nil {
 					return "", err
 				}
 			} else {
-				_, err = promptBuilder.WriteString(MODEL_POSTFIX)
+				_, err = promptBuilder.WriteString(config.Config.Model.ModelPostfix)
 				if err != nil {
 					return "", err
 				}
@@ -87,7 +81,7 @@ func GeneratePrompt(messages []persistence.Message) (string, error) {
 			break
 		}
 	}
-	promptBuilder.WriteString(MODEL_PREFIX)
+	promptBuilder.WriteString(config.Config.Model.ModelPrefix)
 
 	return promptBuilder.String(), nil
 }

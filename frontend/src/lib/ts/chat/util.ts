@@ -37,15 +37,10 @@ export const new_message = async (chatid: number, role: "USER" | "MODEL", conten
    return res.json()
 }
 
-type StreamResponse = {
-	token: Token
-}
-
-type Token = {
-	id: number    
-	text: string 
-	logprob: number 
-	special: boolean 
+type InferenceUpdate = {
+   delta: string,
+   err: string,
+   last: boolean,
 }
 
 export async function* complete(chatid: number, sig: AbortSignal): AsyncGenerator<string> {
@@ -76,10 +71,10 @@ export async function* complete(chatid: number, sig: AbortSignal): AsyncGenerato
       while (buffer.includes("\n\n")) {
          const lineEnd = buffer.indexOf("\n\n")
          const rawJson = buffer.slice(5, lineEnd)
-         buffer = buffer.slice(lineEnd + 2)
+         buffer = buffer.slice(lineEnd + 2).trim()
 
-         const streamResponse: StreamResponse = JSON.parse(rawJson)
-         yield streamResponse.token.text
+         const update: InferenceUpdate = JSON.parse(rawJson)
+         yield update.delta
       }
    }
 

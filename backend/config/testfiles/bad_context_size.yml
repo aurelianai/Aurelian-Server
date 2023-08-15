@@ -1,0 +1,13 @@
+model:
+  system: You are a helpful assistant named Titus
+  userPrefix: "USER: "
+  userPostfix: "<eos>"
+  modelPrefix: "MODEL: "
+  modelPostfix: "<eos>"
+  contextSize: 0
+  chatContextSize: 2048
+
+inference:
+  backend: text-generation-inference
+  endpoint: http://blah.inf/generate
+  maxNewTokens: 50

@@ -2,17 +2,15 @@ package complete
 
 import (
 	a "AELS/ahttp"
-	"AELS/lib/promptgen"
+	"AELS/config"
+	"AELS/inference"
 	m "AELS/middleware"
 	"AELS/persistence"
 	"bufio"
-	"bytes"
-	"encoding/json"
 	"errors"
 	"fmt"
 	"io"
 	"net/http"
-	"os"
 	"time"
 
 	"gorm.io/gorm"
@@ -28,8 +26,6 @@ type Token struct {
 	Special bool    `json:"special"`
 }
 
-var STREAM_ENDPOINT = fmt.Sprintf("%s%s", os.Getenv("INFERENCE_BACKEND"), "/generate_stream")
-
 /*
 Complete through text/event-stream.
 */
@@ -40,40 +36,24 @@ func CompleteChat() a.Handler {
 
 		var messages []persistence.Message
 		err := persistence.DB.Where("chat_id = ?", chatid).Order("id ASC").Find(&messages).Error
-
 		if err != nil {
 			return 500, err
 		}
 
-		prompt, err := promptgen.GeneratePrompt(messages)
-
+		prompt, err := inference.GeneratePrompt(messages)
 		if err != nil {
 			return 500, err
 		}
 
-		reqBody, err := a.Marshal(a.Map{"inputs": prompt, "max_new_tokens": 50})
-
-		if err != nil {
-			return 500, err
-		}
-
-		req, err := http.NewRequest(http.MethodPost, STREAM_ENDPOINT, bytes.NewReader(reqBody))
-
-		if err != nil {
-			return 500, err
-		}
-
-		req.Header.Set("Content-Type", "application/json")
-
-		resp, err := http.DefaultClient.Do(req)
-
+		backend := inference.SUPPORTED_BACKENDS[config.Config.Inference.Backend]
+		resp, err := backend.StartStream(prompt)
 		if err != nil {
 			return 500, err
 		}
 
 		w.Header().Add("Content-Type", "text/event-stream")
 
-		errs := make(chan error)
+		errs := make(chan error)              // Error Occurred during generation in the middle-end
 		completed := make(chan struct{})      // Signals Generation successfully completed
 		canceled := make(chan struct{})       // Signals that Client Hung up and generation should stop
 		gracefullyShutdown := make(chan bool) // Signals that generation has been shutdown gracefully
@@ -117,8 +97,8 @@ func consumeAndWrite(
 	completed chan struct{}) {
 
 	flusher := w.(http.Flusher)
-
 	scanner := bufio.NewReader(resp.Body)
+	backend := inference.SUPPORTED_BACKENDS[config.Config.Inference.Backend]
 
 	modelResponse := persistence.Message{Role: "MODEL", Content: "", ChatID: chatid}
 	persistence.DB.Create(&modelResponse)
@@ -141,34 +121,33 @@ func consumeAndWrite(
 				return
 			}
 
-			if len(bin) == 1 {
+			if string(bin) == "\n" {
 				continue
 			}
 
-			var streamResponse StreamResponse
-			if err := json.Unmarshal(bytes.TrimPrefix(bin, []byte("data:")), &streamResponse); err != nil {
+			event := backend.ParseEvent(bin)
+			encodedEvent, err := a.Marshal(event)
+			if err != nil {
 				errs <- err
 				return
 			}
 
-			if streamResponse.Token.Special {
-				close(completed)
-				return
-			}
-
-			// TODO Batch This
-			if err := persistence.DB.Model(&persistence.Message{}).Where("id = ?", modelResponse.ID).Update("content", gorm.Expr("content || ?", streamResponse.Token.Text)).Error; err != nil {
-				errs <- err
-				return
-			}
-
-			_, err = fmt.Fprintf(w, "%s\n", bin)
-
+			_, err = fmt.Fprintf(w, "data:%s\n\n", encodedEvent)
 			if err != nil {
 				errs <- err
 				return
 			}
 			flusher.Flush()
+
+			if event.Err != nil || event.Last {
+				close(completed)
+				return
+			}
+
+			if err := persistence.DB.Model(&persistence.Message{}).Where("id = ?", modelResponse.ID).Update("content", gorm.Expr("content || ?", event.Delta)).Error; err != nil {
+				errs <- err
+				return
+			}
 
 		}
 	}

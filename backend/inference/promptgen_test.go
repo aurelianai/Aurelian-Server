@@ -1,12 +1,16 @@
-package promptgen
+package inference
 
 import (
+	"AELS/config"
 	"AELS/persistence"
 	"fmt"
 	"testing"
 )
 
 func TestGeneratePrompt(t *testing.T) {
+
+	config.Config.InitAndValidate("./testconfig.yml")
+
 	type args struct {
 		messages []persistence.Message
 	}
@@ -34,7 +38,16 @@ func TestGeneratePrompt(t *testing.T) {
 					},
 				},
 			},
-			want:    fmt.Sprintf("%s%sHello, how's it going?%s%sI'm doing well, how can I help you?%s%sI need help writing an email%s%s", SYSTEM_PROMPT, USER_PREFIX, USER_POSTFIX, MODEL_PREFIX, MODEL_POSTFIX, USER_PREFIX, USER_POSTFIX, MODEL_PREFIX),
+			want: fmt.Sprintf("%s%sHello, how's it going?%s%sI'm doing well, how can I help you?%s%sI need help writing an email%s%s",
+				config.Config.Model.System,
+				config.Config.Model.UserPrefix,
+				config.Config.Model.UserPostfix,
+				config.Config.Model.ModelPrefix,
+				config.Config.Model.ModelPostfix,
+				config.Config.Model.UserPrefix,
+				config.Config.Model.UserPostfix,
+				config.Config.Model.ModelPrefix,
+			),
 			wantErr: false,
 		},
 	}

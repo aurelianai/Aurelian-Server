@@ -1,0 +1,10 @@
+model:
+  userPrefix: "USER: "
+  userPostfix: "<eos>"
+  modelPrefix: "USER: "
+  modelPostfix: "<eos>"
+  contextSize: 4096
+
+inference:
+  endpoint: http://inf/generate_stream
+  backend: text-generation-inference
