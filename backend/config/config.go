@@ -46,11 +46,13 @@ func (c *AelsConfig) InitAndValidate(configFilePath string) error {
 		return errors.New("please pass an endpoint in your .yaml config file under inference:\n\ninference:\tendpoint: 'http://inf.com/generate'")
 	}
 
-	supportedBackends := `	1. text-generation-inference`
+	supportedBackends := `
+		1. text-generation-inference
+		2. together-api
+	`
 
 	if !strings.Contains(supportedBackends, c.Inference.Backend) {
-
-		return fmt.Errorf("the inference backend '%s' is not supported\n\ntry one of these\n%s", c.Inference.Backend, supportedBackends)
+		return fmt.Errorf("the inference backend '%s' is not supported \n\n try one of these %s", c.Inference.Backend, supportedBackends)
 	}
 
 	if c.Model.ContextSize == 0 {

@@ -10,8 +10,8 @@ services:
       PG_PORT: "5432"
       PG_DB: postgres
       JWT_SECRET: "SuperSecretKey"
-      INFERENCE_BACKEND: ${INFERENCE_BACKEND}
       USER_CREATE_ACCESS_KEY: "givemeaccess!"
+      TOGETHER_API_KEY: ${TOGETHER_API_KEY}
     volumes:
       - ./backend:/backend
       - go_modules:/go

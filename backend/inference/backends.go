@@ -10,7 +10,7 @@ type InferenceBackend interface {
 	ParseEvent([]byte) InferenceUpdate
 }
 
-// Universal SSE that's sent to the frontend
+// Universal SSE Schema that's sent to the frontend
 type InferenceUpdate struct {
 	Delta string `json:"delta"`
 	Err   error  `json:"err"`
@@ -19,4 +19,5 @@ type InferenceUpdate struct {
 
 var SUPPORTED_BACKENDS = map[string]InferenceBackend{
 	"text-generation-inference": &TextGenerationInference{},
+	"together-api":              &TogetherAPI{},
 }
