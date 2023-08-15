@@ -41,11 +41,7 @@ func SetupRoutes(r *mux.Router) {
 	api.Handle("/chat/{chatid:[0-9]+}", ch.New(m.Auth, m.ChatOwnership).Then(chatid.NewMessage())).Methods("POST")
 	api.Handle("/chat/{chatid:[0-9]+}/complete", ch.New(m.Auth, m.ChatOwnership).Then(complete.CompleteChat())).Methods("POST")
 
-	/*
-		app.Static("/", "dist")
+	spa := SPA{fallback: "index.html", publicDir: "dist"}
+	r.PathPrefix("/").Handler(&spa)
 
-		app.Get("/*", func(c *fiber.Ctx) error {
-			return c.SendFile("./dist/index.html")
-		})
-	*/
 }

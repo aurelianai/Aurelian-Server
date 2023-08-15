@@ -6,8 +6,8 @@
 
 	export let data: PageData;
 
-	let email = data.email || '';
-	let pass = data.pass || '';
+	let email = decodeURIComponent(data.email || '');
+	let pass = decodeURIComponent(data.pass || '');
 	let errors: string | null = null;
 
 	const login = async () => {
