@@ -37,45 +37,63 @@ export const new_message = async (chatid: number, role: "USER" | "MODEL", conten
    return res.json()
 }
 
-type InferenceUpdate = {
+export type InferenceUpdate = {
    delta: string,
    err: string,
    last: boolean,
 }
 
-export async function* complete(chatid: number, sig: AbortSignal): AsyncGenerator<string> {
+export async function* complete(chatid: number, sig: AbortSignal): AsyncGenerator<InferenceUpdate> {
 
    const response = await fetch(`/api/chat/${chatid}/complete`, {
       headers: new Headers({ 'content-type': 'application/json' }),
-      method: "POST" 
+      method: "POST",
+      signal: sig
    })
 
    if (!response.body) {
       throw new Error("No Body attached to response")
    }
 
-   let buffer = ''
-   const reader = response.body.getReader()
+   for await (let line of iterLines(response.body)) {
+      try {
+         const update = JSON.parse(line)
+         yield update 
+      } catch (e) {
+         yield {
+            delta: "", err: `error occured during parsing of line: '${line}'. Error: ${JSON.stringify(e)}`, last: false
+         }
+      }
+   }
+}
+
+
+export async function* iterLines(stream: ReadableStream<Uint8Array>): AsyncGenerator<string> {
+   let pending: string | undefined = undefined
+   const reader = stream.getReader()
    const decoder = new TextDecoder('utf-8')
 
    while (true) {
-      if (sig.aborted) {
-         return
-      }
 
       const { done, value } = await reader.read()
       if (done) { return }
+      let chunk = decoder.decode(value)
 
-      buffer += decoder.decode(value)
-
-      while (buffer.includes("\n\n")) {
-         const lineEnd = buffer.indexOf("\n\n")
-         const rawJson = buffer.slice(5, lineEnd)
-         buffer = buffer.slice(lineEnd + 2).trim()
-
-         const update: InferenceUpdate = JSON.parse(rawJson)
-         yield update.delta
+      if (pending !== undefined) {
+         chunk = pending + chunk
       }
+
+      let lines = chunk.split("\n")
+      lines = lines.filter( (line) => line !== "" )
+
+      if (lines && lines[-1] && chunk && lines[-1][-1] === chunk[-1]) {
+         pending = lines.pop()
+      } else {
+         pending = undefined
+      }
+
+      for (let i = 0; i < lines.length; i++) { yield lines[i] }
+
    }
 
 }

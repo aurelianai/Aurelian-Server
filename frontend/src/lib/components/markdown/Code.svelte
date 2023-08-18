@@ -5,11 +5,8 @@
 	export let lang = '';
 </script>
 
-<div class="flex justify-center w-full px-4">
-	<CodeBlock
-		language={lang || 'plaintext'}
-		code={text || 'Empty Code Block'}
-		lineNumbers={true}
-		rounded="rounded-md"
-	/>
-</div>
+<CodeBlock
+	language={lang || 'plaintext'}
+	code={text || 'Empty Code Block'}
+	rounded="rounded-md"
+/>

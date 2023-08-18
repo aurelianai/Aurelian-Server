@@ -43,9 +43,9 @@ func (*TogetherAPI) StartStream(prompt string) (*http.Response, error) {
 }
 
 func (*TogetherAPI) ParseEvent(newLine []byte) InferenceUpdate {
-	data := bytes.TrimSuffix(
-		bytes.TrimPrefix(newLine, []byte("data: ")),
-		[]byte("\n\n"),
+	data := bytes.Trim(
+		bytes.TrimPrefix(newLine, []byte("data:")),
+		"\n ",
 	)
 
 	if string(data) == "[DONE]" {
@@ -60,7 +60,8 @@ func (*TogetherAPI) ParseEvent(newLine []byte) InferenceUpdate {
 	}
 
 	var streamResponse StreamResponse
-	if err := json.Unmarshal(bytes.TrimPrefix(newLine, []byte("data:")), &streamResponse); err != nil {
+	if err := json.Unmarshal(data, &streamResponse); err != nil {
+		fmt.Printf("Error occured deserializing streamResponse: %s", err.Error())
 		return InferenceUpdate{Delta: "", Err: err, Last: false}
 	}
 	if len(streamResponse.Choices) == 0 {

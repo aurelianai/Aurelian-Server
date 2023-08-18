@@ -17,14 +17,12 @@ func InitAndMigrate() {
 	PG_PASS := os.Getenv("PG_PASS")
 	PG_PORT := os.Getenv("PG_PORT")
 	PG_DB := os.Getenv("PG_DB")
-	// TODO Hacky fix for turning on ssl in demo-production
-	var SSL_MODE string
-	if PG_USER == "e253" {
-		SSL_MODE = "verify-full"
+	var dsn string
+	if os.Getenv("GO_ENV") == "prod" {
+		dsn = fmt.Sprintf("host=%s user=%s password=%s dbname=%s port=%s sslmode=verify-full", PG_HOST, PG_USER, PG_PASS, PG_DB, PG_PORT)
 	} else {
-		SSL_MODE = "disabled"
+		dsn = fmt.Sprintf("host=%s user=%s password=%s dbname=%s port=%s", PG_HOST, PG_USER, PG_PASS, PG_DB, PG_PORT)
 	}
-	dsn := fmt.Sprintf("host=%s user=%s password=%s dbname=%s port=%s sslmode=%s", PG_HOST, PG_USER, PG_PASS, PG_DB, PG_PORT, SSL_MODE)
 
 	db, err := gorm.Open(postgres.Open(dsn), &gorm.Config{})
 	if err != nil {

@@ -2,7 +2,6 @@
 	import MessageBubble from '$lib/components/chat/MessageBubble.svelte';
 	import ChatInput from '$lib/components/chat/ChatInput.svelte';
 	import ChatSuggestions from '$lib/components/chat/ChatSuggestions.svelte';
-	import GeneratingSpinner from '$lib/components/chat/GeneratingSpinner.svelte';
 	import type { Chat, Message } from '$lib/types';
 	import { ChatStore, new_message, complete, new_chat } from '$lib/ts/chat/util';
 	import { goto } from '$app/navigation';
@@ -25,9 +24,13 @@
 		const controller = new AbortController()
 		signal = controller.signal
 
-		for await (const newText of complete(chat.ID, signal)) {
-			console.log(`RECV: ${newText}`)
-			model_response.Content += newText
+		for await (const update of complete(chat.ID, signal)) {
+			if (update.err) {
+				controller.abort()
+				console.log("Error ocurred during generation:", update.err)
+				break
+			}
+			model_response.Content += update.delta
 			messages[-1] = model_response
 		}
 

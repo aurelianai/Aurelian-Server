@@ -132,7 +132,7 @@ func consumeAndWrite(
 				return
 			}
 
-			_, err = fmt.Fprintf(w, "data:%s\n\n", encodedEvent)
+			_, err = fmt.Fprintf(w, "%s", encodedEvent)
 			if err != nil {
 				errs <- err
 				return
