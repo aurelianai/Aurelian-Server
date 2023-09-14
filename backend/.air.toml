@@ -4,8 +4,8 @@ tmp_dir = "tmp"
 
 [build]
 args_bin = []
-bin = "./tmp/aels-server /backend/aurelian.yml"
-cmd = "go build -o ./tmp/aels-server ."
+bin = "./tmp/aurelian-server /backend/aurelian.yml"
+cmd = "go build -o ./tmp/aurelian-server ."
 delay = 1000
 exclude_dir = ["tmp"]
 exclude_file = []

@@ -1,23 +1,19 @@
-# Aurelian Enterprise Language Server
+# Aurelian Server
 
-Welcome to the AELS monorepo. It's a [sveltekit](kit.svelte.dev) SPA and a [fiber](gofiber.io) + [gorm](gorm.io) REST API/webserver.
+Aurelian Server provides a chat interface over any LLM inference backend. It is meant for larger organizations with many concurrent users. The hope is that organizations can maintain custody over their data while taking advantage of LLMs.
+
+If you are an individual hoping to use LLMs privately, check out [Aurelian-Desktop](github.com/aurelianai/Aurelian-Desktop). It can run on a laptop without a GPU.
 
 # Development
 
-I separate the frontend and backend into two separate containers. There are three Dockerfiles in this repo
-1. `Dockerfile.production`, a three stage build that builds the api, builds the svelte SPA, then has a final alpine stage for deployment.
-2. `/backend/Dockerfile`, a development container for the go api. It uses `air` to watch for changes and rebuild.
-3. `/frontend/Dockerfile`, a development container that watches for changes with `npm run dev`.
+1. `/frontend` - [SvelteKit](kit.svelte.dev) SPA
+2. `/backend` - Golang API backend: persists chats in a PostgreSQL database.
+3. `/backend_tests` - Python testing suite that probes API routes for expected behavior
 
-- Nginx is used to split traffic as would be expected between the static files and other routes in production. `nginx.conf` specifies the configuration.
+To bring up a local instance of the backend and database, run
 
-The development system can be launched with `docker compose up -d` and the dev service is available at [localhost:8080](localhost:8080)
+`docker compose up -d`
 
-Although it's a bit complex, it allows for a fast pace of development due to near immediate loading of changes both the backend and frontend.
+To spawn a development server for the frontend, run
 
-# Production
-To bring up a local instance of the production containers 
-
-```docker compose up -f docker-compose.production.yml```
-
-It will be available at `localhost:2140`
+`npm run dev`

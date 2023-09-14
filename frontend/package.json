@@ -1,5 +1,5 @@
 {
-	"name": "aurelian-enterprise-language-server-frontend",
+	"name": "aurelian-server-frontend",
 	"version": "0.0.1",
 	"private": true,
 	"scripts": {
