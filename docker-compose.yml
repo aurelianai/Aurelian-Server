@@ -29,20 +29,6 @@ services:
       - "5432:5432"
     volumes:
       - pg_data:/var/lib/postgresql/data
-    
-  auth:
-    image: boxyhq/jackson
-    ports:
-      - 5225:5225
-    environment:
-      DB_ENGINE: sql
-      DB_TYPE: "postgres" 
-      DB_URL: "postgres://postgres:postgres@postgres:5432/postgres" 
-      JACKSON_API_KEYS: "secret" 
-      NEXTAUTH_URL: "http://localhost:5225" 
-      EXTERNAL_URL: "http://localhost:5225" 
-      NEXTAUTH_SECRET: "super-secret" 
-      NEXTAUTH_ADMIN_CREDENTIALS: "admin@company.com:secretpassword"
 
 volumes:
   pg_data:
