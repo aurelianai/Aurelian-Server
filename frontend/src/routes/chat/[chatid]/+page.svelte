@@ -24,7 +24,7 @@
 
 		for await (const newText of complete(data.chatid, signal)) {
 			console.log(`RECV: ${newText}`)
-			model_response.Content += newText
+			model_response.Content += newText.delta
 			data.messages[-1] = model_response
 		}
 
