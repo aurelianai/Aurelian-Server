@@ -1,43 +1,14 @@
 <script lang="ts">
-	import type { PageData } from './$types';
-	import { validate_login } from './forms';
-	import { goto } from '$app/navigation';
+	import type { ActionData, PageData } from './$types';
+	import { enhance } from '$app/forms';
 	import { LightSwitch, focusTrap } from '@skeletonlabs/skeleton';
+	import { Icon, LockClosed, UserCircle} from 'svelte-hero-icons'
 
 	export let data: PageData;
+	export let form: ActionData
 
-	let email = decodeURIComponent(data.email || '');
-	let pass = decodeURIComponent(data.pass || '');
-	let errors: string | null = null;
-
-	const login = async () => {
-		console.log('Logging In', email, pass);
-		errors = validate_login(email, pass);
-		if (errors !== null) {
-			return;
-		}
-
-		let res: Response;
-		try {
-			res = await fetch('/api/login', {
-				method: 'POST',
-				headers: new Headers({ 'content-type': 'application/json' }),
-				body: JSON.stringify({ email: email, pass: pass })
-			});
-		} catch {
-			console.log('Error Caught');
-			errors = 'There was an error logging in, refresh the page and try again';
-			return;
-		}
-
-		if (res.status == 200) {
-			goto('/chat');
-		} else if (res.status == 404) {
-			errors = 'Email or Password is incorrect';
-		} else {
-			errors = 'There was an error logging in, refresh the page and try again';
-		}
-	};
+	let username = form?.username ?? decodeURIComponent(data.username || '');
+	let password = decodeURIComponent(data.password || '');
 </script>
 
 <svelte:head>
@@ -58,11 +29,12 @@
 			<div class="flex-grow max-w-xs p-2 mx-auto text-white rounded-md card variant-filled-surface">
 				Your Session Expired!
 			</div>
-		{:else if errors !== null}
-			<div class="flex-grow max-w-xs p-2 mx-auto text-white rounded-md card variant-filled-error">
-				{errors}
-			</div>
 		{/if}
+
+		{#each form?.errors ?? [] as error}
+			{error.field}
+			{error.message}
+		{/each}
 
 		<div class="p-5 space-y-2 rounded-md shadow-2xl card">
 			<header class="flex flex-col items-center card-header">
@@ -71,43 +43,41 @@
 				<p class="font-bold text-tertiary-600-300-token">Log in to your account</p>
 			</header>
 			<section class="p-4">
-				<div class="flex flex-col items-center space-y-10">
+				<form class="flex flex-col items-center space-y-10" method="post" action="?/login" use:enhance use:focusTrap={true}>
 					<div class="flex flex-col w-full space-y-2 justify-left">
 						<div
 							class="input-group input-group-divider grid-cols-[auto_1fr_auto] rounded-md border-none hover:shadow-md"
 						>
-							<div class="input-group-shim">✉️</div>
+							<div class="input-group-shim"><Icon src={UserCircle} class="w-5 h-5 text-surface-400" solid/></div>
 							<input
-								name="email"
+								name="username"
 								class="p-3 border-none"
 								type="text"
-								placeholder="Email"
-								bind:value={email}
-								use:focusTrap={true}
+								placeholder="Username"
+								value={username}
 							/>
 						</div>
 
 						<div
 							class="input-group input-group-divider grid-cols-[auto_1fr_auto] rounded-md border-none hover:shadow-md"
 						>
-							<div class="input-group-shim">🔒️</div>
+							<div class="input-group-shim"><Icon src={LockClosed} class="w-5 h-5 text-warning-600" solid/></div>
 							<input
 								name="password"
 								class="p-3 border-none"
 								type="password"
 								placeholder="Password"
-								bind:value={pass}
+								value={password}
 							/>
 						</div>
 					</div>
 					<button
 						class="mt-10 font-bold rounded-md btn bg-[radial-gradient(ellipse_at_top_left,_var(--tw-gradient-stops))] variant-gradient-secondary-primary w-36"
-						on:click={login}
-						disabled={email === '' || pass === ''}
+						type="submit"	
 					>
 						Log In
 					</button>
-				</div>
+				</form>
 			</section>
 		</div>
 	</div>

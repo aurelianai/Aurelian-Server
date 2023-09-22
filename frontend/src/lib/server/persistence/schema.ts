@@ -5,7 +5,8 @@ export type Database = {
 };
 
 type UserTable = {
-   id: string;
+	id: string;
+	username: string;
 };
 
 type KeyTable = {

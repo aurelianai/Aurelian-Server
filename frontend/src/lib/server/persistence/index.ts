@@ -3,25 +3,24 @@ import path from 'path'
 import { URL } from 'url'
 import { Kysely, Migrator, FileMigrationProvider } from 'kysely'
 import type { Database } from './schema'
-// Drivers (Postgres + Mysql TODO)
 import { PostgresDialect } from 'kysely'
 import { Pool } from 'pg'
 
-
-export class ADB {
-   #db: Kysely<Database>
-   #pool: Pool
+/** Aurelian Database */
+class ADB {
+   db: Kysely<Database>
+   pool: Pool
 
    constructor() {
-      this.#pool = new Pool({
+      this.pool = new Pool({
          connectionString: "postgresql://postgres:postgres@localhost:5432/postgres"
       })
-      const dialect = new PostgresDialect({ pool: this.#pool })
-      this.#db = new Kysely<Database>({ dialect })
+      const dialect = new PostgresDialect({ pool: this.pool })
+      this.db = new Kysely<Database>({ dialect })
    } 
 
    async migrateToLatest() {
-      let db = (this.#db)
+      let db = (this.db)
       const { error, results } = await new Migrator({
          db,
          provider: new FileMigrationProvider({
@@ -44,14 +43,8 @@ export class ADB {
          process.exit(1)
       }
    }
-
-   get db(): Kysely<Database> {
-      return this.#db
-   }
-
-   get pool() {
-      return this.#pool
-   }
 }
 
-export const adb = new ADB()
+const _adb = new ADB()
+await _adb.migrateToLatest()
+export const adb = _adb
